@@ -5,106 +5,626 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>ClassBrainAI - 智能班级管理系统</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+KuaiLe&display=swap');
     :root{
-      --bg:#07090f;--panel:#0f1219;--panel2:#141824;--line:#1c2236;
-      --text:#dde4f8;--muted:#5a6b92;--ok:#2ecc8a;--warn:#f5c842;--danger:#ff5270;
-      --acc:#6a9eff;--acc2:#a07aff;
+      /* 🎓 明亮温暖的校园配色方案 */
+      --bg:#F8FAFC;
+      --bg-pattern:#F0F4F8;
+      --panel:#FFFFFF;
+      --panel2:#F1F5F9;
+      --line:#E2E8F0;
+      --text:#1E293B;
+      --text-light:#64748B;
+      --muted:#94A3B8;
+
+      /* 校园主题色 */
+      --primary:#0EA5E9;
+      --primary-light:#7DD3FC;
+      --secondary:#10B981;
+      --secondary-light:#6EE7B7;
+      --accent:#F59E0B;
+      --accent-light:#FCD34D;
+
+      /* 状态色 */
+      --ok:#10B981;
+      --warn:#F59E0B;
+      --danger:#EF4444;
+      --info:#3B82F6;
+
+      /* 阴影 */
+      --shadow-sm:0 1px 2px 0 rgba(0,0,0,.05);
+      --shadow-md:0 4px 6px -1px rgba(0,0,0,.1);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);
+      --shadow-xl:0 20px 25px -5px rgba(0,0,0,.1);
     }
+
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:"PingFang SC",Inter,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-    ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1e2538;border-radius:4px}
 
-    .wrap{max-width:1400px;margin:0 auto;padding:16px}
+    body{
+      background:linear-gradient(135deg,#F8FAFC 0%,#F0F4F8 100%);
+      color:var(--text);
+      font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      min-height:100vh;
+      position:relative;
+    }
 
-    /* HEADER */
-    .hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
-    .logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,#6a9eff,#a07aff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .sub{font-size:11px;color:var(--muted)}
-    .hdr-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-    .chip{font-size:11px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted)}
-    .chip.ok{border-color:#2ecc8a44;color:var(--ok)}.chip.warn{border-color:#f5c84244;color:var(--warn)}.chip.err{border-color:#ff527044;color:var(--danger)}
-    .btn-refresh{font-size:11px;padding:4px 10px;border:1px solid var(--acc);border-radius:6px;background:transparent;color:var(--acc);cursor:pointer}
-    .btn-refresh:hover{background:#0a1228}
-    #cd{font-size:11px;color:var(--muted)}
+    /* 装饰性背景图案 */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(14,165,233,.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(16,185,129,.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(245,158,11,.02) 0%, transparent 50%);
+      pointer-events:none;
+      z-index:0;
+    }
 
-    /* TABS */
-    .tabs{display:flex;gap:2px;margin-bottom:18px;border-bottom:1px solid var(--line);overflow-x:auto}
-    .tab{font-size:13px;padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;color:var(--muted);border:1px solid transparent;border-bottom:none;white-space:nowrap;position:relative;bottom:-1px;transition:all .15s;user-select:none}
-    .tab:hover{color:var(--text);background:var(--panel)}
-    .tab.active{color:var(--text);background:var(--panel);border-color:var(--line);font-weight:600}
-    .tbadge{font-size:10px;padding:1px 5px;border-radius:999px;background:#1a2040;color:var(--acc);margin-left:4px}
-    .panel{display:none}.panel.active{display:block}
+    ::-webkit-scrollbar{width:8px;height:8px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}
+    ::-webkit-scrollbar-thumb:hover{background:#94A3B8}
+
+    .wrap{max-width:1440px;margin:0 auto;padding:20px;position:relative;z-index:1}
+
+    /* ══ HEADER ══ */
+    .hdr{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:24px;
+      padding:20px 24px;
+      background:var(--panel);
+      border-radius:16px;
+      box-shadow:var(--shadow-md);
+      border:1px solid var(--line);
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* 装饰性顶部条纹 */
+    .hdr::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:4px;
+      background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent));
+    }
+
+    .logo{
+      font-family:"ZCOOL KuaiLe",cursive;
+      font-size:26px;
+      font-weight:900;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      letter-spacing:1px;
+    }
+
+    .sub{
+      font-size:13px;
+      color:var(--muted);
+      font-weight:500;
+    }
+
+    .hdr-r{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap
+    }
+
+    .chip{
+      font-size:12px;
+      padding:6px 14px;
+      border-radius:20px;
+      background:var(--bg-pattern);
+      color:var(--text-light);
+      font-weight:500;
+      border:1px solid var(--line);
+      transition:all .2s;
+    }
+
+    .chip.ok{
+      background:#D1FAE5;
+      color:#065F46;
+      border-color:#10B981
+    }
+
+    .chip.warn{
+      background:#FEF3C7;
+      color:#92400E;
+      border-color:#F59E0B
+    }
+
+    .chip.err{
+      background:#FEE2E2;
+      color:#991B1B;
+      border-color:#EF4444
+    }
+
+    .btn-refresh{
+      font-size:12px;
+      padding:8px 16px;
+      border-radius:10px;
+      border:1px solid var(--primary);
+      background:var(--primary);
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .2s;
+    }
+
+    .btn-refresh:hover{
+      background:#0284C7;
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-md);
+    }
+
+    /* ══ TABS ══ */
+    .tabs{
+      display:flex;
+      gap:6px;
+      margin-bottom:20px;
+      background:var(--panel);
+      padding:8px;
+      border-radius:14px;
+      box-shadow:var(--shadow-sm);
+      border:1px solid var(--line);
+      overflow-x:auto
+    }
+
+    .tab{
+      font-size:14px;
+      padding:10px 18px;
+      border-radius:10px;
+      cursor:pointer;
+      color:var(--text-light);
+      background:transparent;
+      border:1px solid transparent;
+      white-space:nowrap;
+      transition:all .2s;
+      user-select:none;
+      font-weight:500;
+      position:relative
+    }
+
+    .tab:hover{
+      color:var(--text);
+      background:var(--bg-pattern)
+    }
+
+    .tab.active{
+      color:var(--primary);
+      background:#E0F2FE;
+      border-color:var(--primary-light);
+      font-weight:700
+    }
+
+    .tbadge{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:12px;
+      background:var(--primary);
+      color:#fff;
+      margin-left:6px;
+      font-weight:700
+    }
+
+    .panel{
+      display:none
+    }
+
+    .panel.active{
+      display:block
+    }
 
     /* ══ 任务看板 ══ */
-    .edict-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
-    .edict-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;cursor:pointer;transition:border-color .15s,transform .1s,box-shadow .15s}
-    .edict-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 4px 20px rgba(106,158,255,.1)}
+    .edict-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+      gap:16px
+    }
+
+    .edict-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px;
+      cursor:pointer;
+      transition:all .25s cubic-bezier(.4,0,.2,1);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .edict-card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:3px;
+      background:linear-gradient(90deg,var(--primary),var(--secondary));
+      opacity:0;
+      transition:opacity .2s;
+    }
+
+    .edict-card:hover::before{
+      opacity:1;
+    }
+
+    .edict-card:hover{
+      border-color:var(--primary-light);
+      transform:translateY(-4px);
+      box-shadow:var(--shadow-lg)
+    }
 
     /* pipeline strip on card */
-    .ec-pipe{display:flex;align-items:center;gap:0;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
-    .ep-node{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 8px;border-radius:6px;flex-shrink:0;min-width:52px}
-    .ep-node.done{background:#0a2018}
-    .ep-node.active{background:#0f1a38;border:1px solid var(--acc)}
-    .ep-node.pending{opacity:.3}
-    .ep-icon{font-size:14px}
-    .ep-name{font-size:9px;color:var(--muted);white-space:nowrap}
-    .ep-node.done .ep-name{color:var(--ok)}
-    .ep-node.active .ep-name{color:var(--acc);font-weight:700}
-    .ep-arrow{font-size:10px;color:#1c2236;padding:0 1px;flex-shrink:0}
+    .ec-pipe{
+      display:flex;
+      align-items:center;
+      gap:0;
+      margin-bottom:16px;
+      overflow-x:auto;
+      padding-bottom:4px
+    }
 
-    .ec-id{font-size:10px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:5px}
-    .ec-title{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:10px;color:var(--text)}
-    .ec-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
-    .tag{font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid;display:inline-block;white-space:nowrap}
+    .ep-node{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+      padding:8px 10px;
+      border-radius:10px;
+      flex-shrink:0;
+      min-width:56px;
+      transition:all .2s
+    }
 
-    /* state colors */
-    .st-Inbox{border-color:#3a4a7a44;color:#7a9aff;background:#0a1028}
-    .st-Zhongshu{border-color:#a07aff44;color:#a07aff;background:#110a28}
-    .st-Taizi{border-color:#e8a04044;color:#e8a040;background:#281a08}
-    .st-Menxia{border-color:#ff9a6a44;color:#ff9a6a;background:#280f0a}
-    .st-Assigned,.st-Doing{border-color:#6a9eff44;color:#6a9eff;background:#0a1428}
-    .st-Review{border-color:#f5c84244;color:#f5c842;background:#201a08}
-    .st-Done{border-color:#2ecc8a44;color:var(--ok);background:#0a2018}
-    .st-Blocked{border-color:#ff527044;color:var(--danger);background:#200a10}
-    .st-Cancelled{border-color:#88888844;color:#888;background:#1a1a1a}
-    .st-Next{border-color:#4a9adf44;color:#4a9adf;background:#0a1424}
+    .ep-node.done{
+      background:#D1FAE5;
+      border:1px solid #10B98144
+    }
 
-    /* dept colors */
-    .dt-学习委员{border-color:#a07aff44;color:#a07aff;background:#1a0f38}
-    .dt-班委主席{border-color:#6a9eff44;color:#6a9eff;background:#0f1a38}
-    .dt-副班长{border-color:#6aef9a44;color:#6aef9a;background:#0a2018}
-    .dt-礼部{border-color:#f5c84244;color:#f5c842;background:#201a08}
-    .dt-户部{border-color:#ff9a6a44;color:#ff9a6a;background:#28100a}
-    .dt-兵部{border-color:#ff527044;color:#ff5270;background:#280a10}
-    .dt-刑部{border-color:#cc444444;color:#cc4444;background:#280808}
-    .dt-工部{border-color:#44aaff44;color:#44aaff;background:#081828}
+    .ep-node.active{
+      background:#E0F2FE;
+      border:1px solid var(--primary);
+      box-shadow:0 0 0 3px rgba(14,165,233,.1)
+    }
 
-    .ec-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px}
-    .hb{font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid var(--line)}
-    .hb.active{border-color:#2ecc8a44;color:var(--ok)}.hb.warn{border-color:#f5c84244;color:var(--warn)}.hb.stalled{border-color:#ff527044;color:var(--danger);animation:pulse 1.5s infinite}.hb.unknown{color:var(--muted)}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .ep-node.pending{
+      opacity:.35;
+      background:var(--bg-pattern)
+    }
 
-    /* ══ TASK DETAIL MODAL ══ */
-    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;backdrop-filter:blur(3px);overflow-y:auto}
-    .modal-bg.open{display:flex;align-items:flex-start;justify-content:center;padding:40px 16px}
-    .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:760px;padding:28px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6)}
-    .modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;font-size:18px;color:var(--muted)}
-    .modal-close:hover{background:var(--panel2);color:var(--text)}
-    .modal-id{font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:6px}
-    .modal-title{font-size:22px;font-weight:800;line-height:1.3;margin-bottom:18px}
+    .ep-icon{
+      font-size:16px
+    }
+
+    .ep-name{
+      font-size:9px;
+      color:var(--text-light);
+      white-space:nowrap;
+      font-weight:600
+    }
+
+    .ep-node.done .ep-name{
+      color:#065F46
+    }
+
+    .ep-node.active .ep-name{
+      color:#0369A1;
+      font-weight:700
+    }
+
+    .ep-arrow{
+      font-size:12px;
+      color:var(--line);
+      padding:0 2px;
+      flex-shrink:0
+    }
+
+    .ec-id{
+      font-size:11px;
+      color:var(--primary);
+      font-weight:800;
+      letter-spacing:.05em;
+      margin-bottom:6px
+    }
+
+    .ec-title{
+      font-size:16px;
+      font-weight:700;
+      line-height:1.4;
+      margin-bottom:12px;
+      color:var(--text)
+    }
+
+    .ec-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-bottom:10px
+    }
+
+    .tag{
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:8px;
+      border:1px solid;
+      display:inline-block;
+      white-space:nowrap;
+      font-weight:600
+    }
+
+    /* ══ 状态颜色 - 明亮校园风格 ══ */
+    .st-Inbox{
+      background:#DBEAFE;
+      color:#1E40AF;
+      border-color:#3B82F6
+    }
+
+    .st-Monitor{
+      background:#FEF3C7;
+      color:#92400E;
+      border-color:#F59E0B
+    }
+
+    .st-Study{
+      background:#E9D5FF;
+      color:#6B21A8;
+      border-color:#A855F7
+    }
+
+    .st-Chair{
+      background:#FED7AA;
+      color:#9A3412;
+      border-color:#FB923C
+    }
+
+    .st-Assigned,
+    .st-Doing{
+      background:#E0F2FE;
+      color:#0369A1;
+      border-color:#0EA5E9
+    }
+
+    .st-Review{
+      background:#FEF08A;
+      color:#854D0E;
+      border-color:#EAB308
+    }
+
+    .st-Done{
+      background:#D1FAE5;
+      color:#065F46;
+      border-color:#10B981
+    }
+
+    .st-Blocked{
+      background:#FEE2E2;
+      color:#991B1B;
+      border-color:#EF4444
+    }
+
+    .st-Cancelled{
+      background:#F1F5F9;
+      color:#64748B;
+      border-color:#94A3B8
+    }
+
+    .st-Next{
+      background:#F0FDFA;
+      color:#115E59;
+      border-color:#14B8A6
+    }
+
+    .st-Technical{
+      background:#FFE4E6;
+      color:#9F1239;
+      border-color:#F43F5E
+    }
+
+    .st-Organization{
+      background:#E0F2FE;
+      color:#075985;
+      border-color:#06B6D4
+    }
+
+    /* ══ 班委颜色 - 明亮校园风格 ══ */
+    .dt-班长{
+      background:#FEF3C7;
+      color:#92400E;
+      border-color:#F59E0B
+    }
+
+    .dt-学习委员{
+      background:#E9D5FF;
+      color:#6B21A8;
+      border-color:#A855F7
+    }
+
+    .dt-班委主席{
+      background:#DBEAFE;
+      color:#1E40AF;
+      border-color:#3B82F6
+    }
+
+    .dt-副班长{
+      background:#D1FAE5;
+      color:#065F46;
+      border-color:#10B981
+    }
+
+    .dt-技术委员{
+      background:#FFE4E6;
+      color:#9F1239;
+      border-color:#F43F5E
+    }
+
+    .dt-后勤委员{
+      background:#E0F2FE;
+      color:#0369A1;
+      border-color:#0EA5E9
+    }
+
+    .dt-财务委员{
+      background:#FED7AA;
+      color:#9A3412;
+      border-color:#FB923C
+    }
+
+    .dt-文艺委员{
+      background:#FEF3C7;
+      color:#92400E;
+      border-color:#F59E0B
+    }
+
+    .dt-纪律委员{
+      background:#FEE2E2;
+      color:#991B1B;
+      border-color:#EF4444
+    }
+
+    .dt-组织委员{
+      background:#F0FDFA;
+      color:#115E59;
+      border-color:#14B8A6
+    }
+
+    .ec-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:12px;
+      flex-wrap:wrap;
+      gap:8px
+    }
+
+    .hb{
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--bg-pattern);
+      font-weight:600
+    }
+
+    .hb.active{
+      background:#D1FAE5;
+      color:#065F46;
+      border-color:#10B981
+    }
+
+    .hb.warn{
+      background:#FEF3C7;
+      color:#92400E;
+      border-color:#F59E0B
+    }
+
+    .hb.stalled{
+      background:#FEE2E2;
+      color:#991B1B;
+      border-color:#EF4444;
+      animation:pulse 1.5s infinite
+    }
+
+    .hb.unknown{
+      color:var(--muted)
+    }
+
+    @keyframes pulse{
+      0%,100%{opacity:1}
+      50%{opacity:.5}
+    }
+
+    /* ══ MODAL ══ */
+    .modal-bg{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.5);
+      backdrop-filter:blur(8px);
+      z-index:100;
+      display:none;
+      overflow-y:auto
+    }
+
+    .modal-bg.open{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px
+    }
+
+    .modal{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:20px;
+      width:100%;
+      max-width:780px;
+      max-height:90vh;
+      overflow-y:auto;
+      padding:32px;
+      position:relative;
+      box-shadow:var(--shadow-xl)
+    }
+
+    .modal-close{
+      position:absolute;
+      top:16px;
+      right:16px;
+      width:36px;
+      height:36px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:18px;
+      color:var(--text-light);
+      background:var(--bg-pattern);
+      border:1px solid var(--line);
+      transition:all .2s
+    }
+
+    .modal-close:hover{
+      background:var(--bg);
+      color:var(--text)
+    }
+
+    .modal-id{
+      font-size:12px;
+      color:var(--primary);
+      font-weight:800;
+      letter-spacing:.05em;
+      margin-bottom:8px
+    }
+
+    .modal-title{
+      font-size:24px;
+      font-weight:800;
+      line-height:1.3;
+      margin-bottom:20px;
+      color:var(--text)
+    }
 
     /* full pipeline in modal */
     .m-pipe{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:16px;background:var(--panel2);border-radius:12px;margin-bottom:20px}
     .mp-stage{display:flex;align-items:center;flex-shrink:0}
     .mp-node{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:10px;min-width:80px;position:relative}
-    .mp-node.done{background:#0a2018;border:1px solid #2ecc8a44}
-    .mp-node.active{background:#0f1838;border:2px solid var(--acc);box-shadow:0 0 14px rgba(106,158,255,.2)}
+    .mp-node.done{background:#D1FAE5;border:1px solid #10B981}
+    .mp-node.active{background:#DBEAFE;border:2px solid var(--primary);box-shadow:0 0 14px rgba(14,165,233,.3)}
     .mp-node.pending{opacity:.25;border:1px dashed var(--line)}
     .mp-icon{font-size:22px}
     .mp-dept{font-size:12px;font-weight:700;margin-top:2px}
     .mp-node.done .mp-dept{color:var(--ok)}
-    .mp-node.active .mp-dept{color:var(--acc)}
+    .mp-node.active .mp-dept{color:var(--primary)}
     .mp-node.pending .mp-dept{color:var(--muted)}
     .mp-action{font-size:10px;color:var(--muted);margin-top:1px}
     .mp-node.active .mp-action{color:#6a9eff88}
@@ -112,9 +632,9 @@
     .mp-arrow{color:#1c2236;font-size:18px;padding:0 6px;margin-top:-10px}
 
     /* current stage banner */
-    .cur-stage{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0a1228;border:1px solid var(--acc);border-radius:10px;margin-bottom:18px}
+    .cur-stage{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#EFF6FF;border:1px solid var(--primary);border-radius:10px;margin-bottom:18px}
     .cs-icon{font-size:24px}
-    .cs-info .cs-dept{font-size:16px;font-weight:700;color:var(--acc)}
+    .cs-info .cs-dept{font-size:16px;font-weight:700;color:var(--primary)}
     .cs-info .cs-action{font-size:12px;color:var(--muted);margin-top:2px}
     .cs-hb{margin-left:auto}
 
@@ -131,7 +651,7 @@
     .fl-who .from{font-weight:700}
     .fl-who .to{font-weight:700}
     .fl-rem{font-size:11px;color:var(--muted);line-height:1.5}
-    .fl-ok{color:var(--ok)}.fl-warn{color:var(--warn)}.fl-blue{color:var(--acc)}.fl-purple{color:var(--acc2)}
+    .fl-ok{color:var(--ok)}.fl-warn{color:var(--warn)}.fl-blue{color:var(--primary)}.fl-purple{color:var(--secondary)}
 
     /* meta rows */
     .m-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -143,7 +663,7 @@
     .duty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
     .duty-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s}
     .duty-card:hover{border-color:#2e3d6a}
-    .duty-card.active-card{border-color:var(--acc)}
+    .duty-card.active-card{border-color:var(--primary)}
     .duty-card.blocked-card{border-color:#ff527055}
 
     .dc-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--panel2);border-bottom:1px solid var(--line)}
@@ -154,7 +674,7 @@
     .dc-status{display:flex;align-items:center;gap:5px;font-size:11px}
     .dc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .dc-dot.active{background:var(--ok)}.dc-dot.busy{background:var(--warn);animation:pulse 1.5s infinite}
-    .dc-dot.blocked{background:var(--danger);animation:pulse 1s infinite}.dc-dot.idle{background:#2a3a5a}
+    .dc-dot.blocked{background:var(--danger);animation:pulse 1s infinite}.dc-dot.idle{background:#CBD5E1}
 
     .dc-body{padding:14px 16px}
 
@@ -163,7 +683,7 @@
 
     /* 执行中任务 */
     .dc-task{display:flex;flex-direction:column;gap:6px}
-    .dc-task-id{font-size:10px;color:var(--acc);font-weight:700;letter-spacing:.04em}
+    .dc-task-id{font-size:10px;color:var(--primary);font-weight:700;letter-spacing:.04em}
     .dc-task-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.3}
     .dc-task-now{font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px}
     .dc-task-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
@@ -172,37 +692,293 @@
     .dc-model{font-size:10px;color:var(--muted)}.dc-la{font-size:10px;color:var(--muted);margin-left:auto}
 
     /* ══ Model / Skills tabs ══ */
-    .model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:18px}
-    .mc-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-    .mc-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-    .mc-emoji{font-size:22px}
-    .mc-name{font-size:15px;font-weight:700}.mc-role{font-size:11px;color:var(--muted)}
-    .mc-cur{font-size:11px;color:var(--muted);margin-bottom:8px}.mc-cur b{color:var(--text)}
-    .msel{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;outline:none;cursor:pointer}.msel:focus{border-color:var(--acc)}
-    .mc-btns{display:flex;gap:6px;margin-top:8px}
-    .btn{font-size:12px;padding:6px 14px;border-radius:7px;border:none;cursor:pointer;font-weight:600}
-    .btn-p{background:var(--acc);color:#000}.btn-p:hover{filter:brightness(1.15)}.btn-p:disabled{background:#2a3a6a;color:var(--muted);cursor:not-allowed}
-    .btn-g{background:transparent;border:1px solid var(--line);color:var(--muted)}.btn-g:hover{border-color:#2e3d6a;color:var(--text)}
-    .mc-st{font-size:11px;margin-top:6px;padding:4px 8px;border-radius:5px;display:none}
-    .mc-st.ok{display:block;background:#0a2018;color:var(--ok);border:1px solid #2ecc8a44}
-    .mc-st.err{display:block;background:#200a10;color:var(--danger);border:1px solid #ff527044}
-    .mc-st.pending{display:block;background:#0a1228;color:var(--acc);border:1px solid #6a9eff44}
-    .cl-wrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-    .cl-title{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px}
-    .cl-row{display:flex;gap:10px;font-size:11px;padding:5px 0;border-bottom:1px solid var(--line)}.cl-row:last-child{border-bottom:none}
-    .cl-t{color:var(--muted);min-width:115px}.cl-a{color:var(--acc);min-width:80px}.cl-c{color:var(--muted)}.cl-c b{color:var(--text)}
+    .model-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+      gap:16px;
+      margin-bottom:20px
+    }
 
-    .skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-    .sk-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-    .sk-hdr{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
-    .sk-emoji{font-size:18px}.sk-name{font-size:14px;font-weight:700}.sk-cnt{font-size:11px;color:var(--muted);margin-left:auto}
-    .sk-list{padding:10px}
-    .sk-item{display:flex;gap:8px;padding:8px 10px;border-radius:7px;font-size:12px;margin-bottom:3px;cursor:pointer;border:1px solid transparent;transition:all .12s}
-    .sk-item:hover{background:var(--panel2);border-color:var(--line)}
-    .si-name{font-weight:600;min-width:100px}.si-desc{color:var(--muted);flex:1;line-height:1.4}
-    .si-arrow{color:var(--muted);font-size:14px;opacity:.3;transition:opacity .12s}.sk-item:hover .si-arrow{opacity:1}
-    .sk-empty{font-size:12px;color:var(--muted);padding:12px;text-align:center;opacity:.6}
-    .sk-add{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;font-size:12px;color:var(--acc);cursor:pointer;border-top:1px solid var(--line);transition:background .12s}
+    .mc-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:var(--shadow-sm);
+      transition:all .2s
+    }
+
+    .mc-card:hover{
+      box-shadow:var(--shadow-md);
+      border-color:var(--primary-light)
+    }
+
+    .mc-top{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px
+    }
+
+    .mc-emoji{
+      font-size:24px
+    }
+
+    .mc-name{
+      font-size:16px;
+      font-weight:700
+    }
+
+    .mc-role{
+      font-size:12px;
+      color:var(--text-light)
+    }
+
+    .mc-cur{
+      font-size:12px;
+      color:var(--text-light);
+      margin-bottom:10px
+    }
+
+    .mc-cur b{
+      color:var(--text)
+    }
+
+    .msel{
+      width:100%;
+      background:var(--bg-pattern);
+      border:1px solid var(--line);
+      border-radius:10px;
+      color:var(--text);
+      padding:10px 14px;
+      font-size:13px;
+      outline:none;
+      cursor:pointer;
+      transition:all .2s;
+      font-weight:500
+    }
+
+    .msel:hover{
+      border-color:var(--primary);
+      background:var(--panel)
+    }
+
+    .msel:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(14,165,233,.1)
+    }
+
+    .mc-btns{
+      display:flex;
+      gap:8px;
+      margin-top:12px
+    }
+
+    .btn{
+      font-size:13px;
+      padding:8px 16px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      transition:all .2s
+    }
+
+    .btn-p{
+      background:var(--primary);
+      color:#fff
+    }
+
+    .btn-p:hover{
+      background:#0284C7;
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-md)
+    }
+
+    .btn-p:disabled{
+      background:#94A3B8;
+      cursor:not-allowed;
+      transform:none
+    }
+
+    .btn-g{
+      background:var(--bg-pattern);
+      border:1px solid var(--line);
+      color:var(--text-light)
+    }
+
+    .btn-g:hover{
+      border-color:var(--primary);
+      color:var(--primary)
+    }
+
+    .mc-st{
+      font-size:11px;
+      margin-top:8px;
+      padding:6px 10px;
+      border-radius:8px;
+      display:none;
+      font-weight:600
+    }
+
+    .mc-st.ok{
+      display:block;
+      background:#D1FAE5;
+      color:#065F46;
+      border:1px solid #10B981
+    }
+
+    .mc-st.err{
+      display:block;
+      background:#FEE2E2;
+      color:#991B1B;
+      border:1px solid #EF4444
+    }
+
+    .mc-st.pending{
+      display:block;
+      background:#E0F2FE;
+      color:#0369A1;
+      border:1px solid #0EA5E9
+    }
+
+    .cl-wrap{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:var(--shadow-sm)
+    }
+
+    .cl-title{
+      font-size:12px;
+      font-weight:700;
+      color:var(--text-light);
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      margin-bottom:12px
+    }
+
+    .cl-row{
+      display:flex;
+      gap:12px;
+      font-size:12px;
+      padding:6px 0;
+      border-bottom:1px solid var(--line)
+    }
+
+    .cl-row:last-child{
+      border-bottom:none
+    }
+
+    .cl-t{
+      color:var(--text-light);
+      min-width:120px
+    }
+
+    .cl-a{
+      color:var(--primary);
+      min-width:85px;
+      font-weight:600
+    }
+
+    .cl-c{
+      color:var(--text-light)
+    }
+
+    .cl-c b{
+      color:var(--text)
+    }
+
+    .skills-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+      gap:16px
+    }
+
+    .sk-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:var(--shadow-sm)
+    }
+
+    .sk-hdr{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:14px 16px;
+      background:var(--bg-pattern);
+      border-bottom:1px solid var(--line)
+    }
+
+    .sk-emoji{
+      font-size:20px
+    }
+
+    .sk-name{
+      font-size:15px;
+      font-weight:700
+    }
+
+    .sk-cnt{
+      font-size:12px;
+      color:var(--text-light);
+      margin-left:auto
+    }
+
+    .sk-list{
+      padding:12px
+    }
+
+    .sk-item{
+      display:flex;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:10px;
+      font-size:13px;
+      margin-bottom:4px;
+      cursor:pointer;
+      border:1px solid transparent;
+      transition:all .15s
+    }
+
+    .sk-item:hover{
+      background:var(--bg-pattern);
+      border-color:var(--line)
+    }
+
+    .si-name{
+      font-weight:600;
+      min-width:110px
+    }
+
+    .si-desc{
+      color:var(--text-light);
+      flex:1;
+      line-height:1.5
+    }
+
+    .si-arrow{
+      color:var(--line);
+      font-size:16px;
+      opacity:.4;
+      transition:opacity .15s
+    }
+
+    .sk-item:hover .si-arrow{
+      opacity:1
+    }
+
+    .sk-empty{
+      font-size:13px;
+      color:var(--text-light);
+      padding:16px;
+      text-align:center;
+      opacity:.6
+    }
+    .sk-add{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;font-size:12px;color:var(--primary);cursor:pointer;border-top:1px solid var(--line);transition:background .12s}
     .sk-add:hover{background:var(--panel2)}
 
     /* skill detail modal */
@@ -225,11 +1001,11 @@
     /* ══ SESSIONS TAB ══ */
     .sess-filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
     .sess-filter{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;transition:all .12s}
-    .sess-filter:hover{border-color:var(--acc);color:var(--text)}
-    .sess-filter.active{border-color:var(--acc);color:var(--acc);background:#0a1228}
+    .sess-filter:hover{border-color:var(--primary);color:var(--text)}
+    .sess-filter.active{border-color:var(--primary);color:var(--primary);background:#DBEAFE}
     .sess-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
     .sess-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;transition:border-color .12s}
-    .sess-card:hover{border-color:#2e3d6a}
+    .sess-card:hover{border-color:var(--primary)}
     .sc-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
     .sc-emoji{font-size:20px}
     .sc-agent{font-size:13px;font-weight:700}
@@ -237,63 +1013,320 @@
     .sc-title{font-size:13px;font-weight:600;margin-bottom:6px;line-height:1.4}
     .sc-now{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:6px}
     .sc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-    .sc-id{font-size:10px;color:var(--acc);font-weight:600}
+    .sc-id{font-size:10px;color:var(--primary);font-weight:600}
     .sc-time{font-size:10px;color:var(--muted);margin-left:auto}
 
-    /* ══ TASK ACTIONS ══ */
-    .task-actions{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-    .btn-action{font-size:12px;padding:7px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:700;transition:all .15s}
-    .btn-stop{background:#ff527022;color:#ff5270;border:1px solid #ff527044}.btn-stop:hover{background:#ff527044}
-    .btn-cancel{background:#88888822;color:#888;border:1px solid #88888844}.btn-cancel:hover{background:#88888844}
-    .btn-resume{background:#2ecc8a22;color:#2ecc8a;border:1px solid #2ecc8a44}.btn-resume:hover{background:#2ecc8a44}
-    .btn-action:disabled{opacity:.4;cursor:not-allowed}
+    /* ══ TASK ACTIONS - 校园风格按钮 ══ */
+    .task-actions{
+      display:flex;
+      gap:10px;
+      margin-bottom:20px;
+      flex-wrap:wrap
+    }
+
+    .btn-action{
+      font-size:13px;
+      padding:10px 18px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      transition:all .2s cubic-bezier(.4,0,.2,1);
+      box-shadow:var(--shadow-sm)
+    }
+
+    .btn-stop{
+      background:#FEE2E2;
+      color:#DC2626;
+      border:1px solid #FCA5A5
+    }
+
+    .btn-stop:hover{
+      background:#FECACA;
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-md)
+    }
+
+    .btn-cancel{
+      background:#F1F5F9;
+      color:#64748B;
+      border:1px solid #CBD5E1
+    }
+
+    .btn-cancel:hover{
+      background:#E2E8F0;
+      color:#475569
+    }
+
+    .btn-resume{
+      background:#D1FAE5;
+      color:#059669;
+      border:1px solid #6EE7B7
+    }
+
+    .btn-resume:hover{
+      background:#A7F3D0;
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-md)
+    }
+
+    .btn-action:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+      transform:none !important
+    }
+
+    /* ══ 其他按钮样式 ══ */
+    .btn{
+      font-size:13px;
+      padding:10px 18px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      transition:all .2s
+    }
+
+    .btn-p{
+      background:var(--primary);
+      color:#fff
+    }
+
+    .btn-p:hover{
+      background:#0284C7;
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-md)
+    }
+
+    .btn-p:disabled{
+      background:#94A3B8;
+      cursor:not-allowed
+    }
+
+    .btn-g{
+      background:var(--bg-pattern);
+      border:1px solid var(--line);
+      color:var(--text-light)
+    }
+
+    .btn-g:hover{
+      border-color:var(--primary);
+      color:var(--primary)
+    }
 
     /* ══ SCHEDULER PANEL ══ */
-    .sched-section{margin-bottom:18px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
-    .sched-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
-    .sched-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--acc)}
-    .sched-status{font-size:10px;color:var(--muted)}
-    .sched-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
-    .sched-kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
-    .sched-kpi .k{font-size:10px;color:var(--muted);margin-bottom:2px}
-    .sched-kpi .v{font-size:13px;font-weight:700}
-    .sched-line{font-size:11px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-    .sched-actions{display:flex;gap:6px;flex-wrap:wrap}
-    .sched-btn{font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
-    .sched-btn:hover{border-color:var(--acc);color:var(--text)}
-    .sched-btn.warn:hover{border-color:#f5c842;color:#f5c842}
-    .sched-btn.danger:hover{border-color:#ff5270;color:#ff5270}
+    .sched-section{
+      margin-bottom:20px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:var(--shadow-sm)
+    }
+
+    .sched-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px
+    }
+
+    .sched-title{
+      font-size:13px;
+      font-weight:700;
+      color:var(--primary);
+      letter-spacing:.02em
+    }
+
+    .sched-status{
+      font-size:11px;
+      color:var(--muted)
+    }
+
+    .sched-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:12px
+    }
+
+    .sched-kpi{
+      background:var(--bg-pattern);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:12px
+    }
+
+    .sched-kpi .k{
+      font-size:11px;
+      color:var(--text-light);
+      margin-bottom:4px
+    }
+
+    .sched-kpi .v{
+      font-size:16px;
+      font-weight:700;
+      color:var(--text)
+    }
+
+    .sched-line{
+      font-size:12px;
+      color:var(--text-light);
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px
+    }
+
+    .sched-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap
+    }
+
+    .sched-btn{
+      font-size:12px;
+      padding:6px 12px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:var(--text-light);
+      cursor:pointer;
+      transition:all .2s;
+      font-weight:500
+    }
+
+    .sched-btn:hover{
+      border-color:var(--primary);
+      color:var(--primary);
+      background:var(--bg-pattern)
+    }
 
     /* card-level mini actions */
-    .ec-actions{display:flex;gap:4px;margin-top:8px}
-    .ec-actions .mini-act{font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--muted);transition:all .12s}
-    .ec-actions .mini-act:hover{border-color:var(--acc);color:var(--text)}
-    .ec-actions .mini-act.danger:hover{border-color:#ff5270;color:#ff5270}
+    .ec-actions{
+      display:flex;
+      gap:6px;
+      margin-top:10px
+    }
+
+    .ec-actions .mini-act{
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:6px;
+      border:1px solid var(--line);
+      background:var(--bg-pattern);
+      cursor:pointer;
+      color:var(--text-light);
+      transition:all .15s;
+      font-weight:500
+    }
+
+    .ec-actions .mini-act:hover{
+      border-color:var(--primary);
+      color:var(--primary)
+    }
 
     /* ══ ARCHIVE FILTER BAR ══ */
-    .archive-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-    .archive-bar .ab-label{font-size:12px;color:var(--muted);margin-right:4px}
-    .archive-bar .ab-btn{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--muted);transition:all .15s;font-weight:600}
-    .archive-bar .ab-btn:hover{border-color:var(--acc);color:var(--text)}
-    .archive-bar .ab-btn.active{border-color:var(--acc);color:var(--acc);background:#0f1a38}
-    .archive-bar .ab-count{font-size:10px;color:var(--muted);margin-left:auto}
-    .archive-bar .ab-archive-all{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid #2ecc8a44;background:transparent;cursor:pointer;color:var(--ok);font-weight:600;transition:all .15s}
-    .archive-bar .ab-archive-all:hover{background:#0a2018;border-color:var(--ok)}
-    .archive-bar .ab-scan{font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid #6a9eff44;background:transparent;cursor:pointer;color:var(--acc);font-weight:600;transition:all .15s}
-    .archive-bar .ab-scan:hover{background:#0a1228;border-color:var(--acc)}
-    .archive-bar .ab-scan-status{font-size:10px;color:var(--muted)}
-    .archive-bar .ab-scan-detail{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:transparent;cursor:pointer;color:var(--muted);font-weight:600;transition:all .15s}
-    .archive-bar .ab-scan-detail:hover{border-color:var(--acc);color:var(--text)}
-    .archive-bar .ab-scan-detail.active{border-color:var(--acc);color:var(--acc);background:#0f1a38}
-    .archive-bar .ab-scan-copy{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #2ecc8a44;background:transparent;cursor:pointer;color:var(--ok);font-weight:600;transition:all .15s}
-    .archive-bar .ab-scan-copy:hover{background:#0a2018;border-color:var(--ok)}
+    .archive-bar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+      background:var(--panel);
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow-sm)
+    }
+
+    .archive-bar .ab-label{
+      font-size:13px;
+      color:var(--text-light);
+      font-weight:600;
+      margin-right:4px
+    }
+
+    .archive-bar .ab-btn{
+      font-size:12px;
+      padding:6px 14px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:transparent;
+      cursor:pointer;
+      color:var(--text-light);
+      transition:all .2s;
+      font-weight:600
+    }
+
+    .archive-bar .ab-btn:hover{
+      border-color:var(--primary);
+      color:var(--primary);
+      background:var(--bg-pattern)
+    }
+
+    .archive-bar .ab-btn.active{
+      border-color:var(--primary);
+      color:var(--primary);
+      background:#E0F2FE
+    }
+
+    .archive-bar .ab-count{
+      font-size:11px;
+      color:var(--muted);
+      margin-left:auto
+    }
+
+    .archive-bar .ab-scan{
+      font-size:12px;
+      padding:6px 14px;
+      border-radius:8px;
+      border:1px solid var(--primary);
+      background:var(--primary);
+      color:#fff;
+      font-weight:600;
+      transition:all .2s
+    }
+
+    .archive-bar .ab-scan:hover{
+      background:#0284C7
+    }
+
+    .archive-bar .ab-scan-status{
+      font-size:11px;
+      color:var(--muted)
+    }
+
+    .archive-bar .ab-scan-detail{
+      font-size:12px;
+      padding:6px 12px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:transparent;
+      cursor:pointer;
+      color:var(--text-light);
+      font-weight:600;
+      transition:all .2s
+    }
+
+    .archive-bar .ab-scan-detail:hover{
+      border-color:var(--primary);
+      color:var(--primary)
+    }
+
+    .archive-bar .ab-scan-detail.active{
+      border-color:var(--primary);
+      color:var(--primary);
+      background:#E0F2FE
+    }
     .global-scan-detail{display:none;margin-top:-4px;margin-bottom:12px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
     .global-scan-detail.open{display:block}
     .global-scan-detail .gs-empty{font-size:11px;color:var(--muted)}
     .global-scan-detail .gs-list{display:flex;flex-direction:column;gap:6px}
     .global-scan-detail .gs-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-size:11px}
     .global-scan-detail .gs-tag{font-size:10px;border-radius:10px;padding:2px 8px;font-weight:700;border:1px solid var(--line);color:var(--muted)}
-    .global-scan-detail .gs-tag.retry{color:var(--acc);border-color:#6a9eff55}
+    .global-scan-detail .gs-tag.retry{color:var(--primary);border-color:#6a9eff55}
     .global-scan-detail .gs-tag.escalate{color:#f5c842;border-color:#f5c84255}
     .global-scan-detail .gs-tag.rollback{color:#ff5270;border-color:#ff527055}
     .global-scan-detail .gs-task{font-weight:700;color:var(--text)}
@@ -307,7 +1340,7 @@
     .todo-section{margin-bottom:18px}
     .todo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .todo-progress{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
-    .todo-bar{width:120px;height:6px;background:#0e1320;border-radius:3px;overflow:hidden}
+    .todo-bar{width:120px;height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden}
     .todo-bar-fill{height:100%;border-radius:3px;background:var(--ok);transition:width .3s}
     .todo-list{display:flex;flex-direction:column;gap:4px}
     .todo-item{display:flex;flex-direction:column;background:var(--panel2);border-radius:8px;font-size:12px;transition:opacity .15s}
@@ -319,8 +1352,8 @@
     .todo-item .t-title{flex:1;color:var(--text)}
     .todo-item.done .t-title{text-decoration:line-through;color:var(--muted)}
     .todo-item .t-status{font-size:10px;padding:2px 6px;border-radius:4px}
-    .todo-item .t-status.s-done{color:var(--ok);background:#0a2018;border:1px solid #2ecc8a44}
-    .todo-item .t-status.s-progress{color:var(--acc);background:#0a1228;border:1px solid #6a9eff44}
+    .todo-item .t-status.s-done{color:var(--ok);background:#D1FAE5;border:1px solid #10B981}
+    .todo-item .t-status.s-progress{color:var(--primary);background:#DBEAFE;border:1px solid #3B82F6}
     .todo-item .t-status.s-notstarted{color:var(--muted);background:var(--panel);border:1px solid var(--line)}
     .todo-item .t-expand{color:var(--muted);font-size:10px;transition:transform .2s;flex-shrink:0}
     .todo-item.expanded .t-expand{transform:rotate(90deg)}
@@ -329,13 +1362,13 @@
 
     /* card todo mini-bar */
     .ec-todo-bar{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-top:6px}
-    .ec-todo-track{flex:1;max-width:80px;height:4px;background:#0e1320;border-radius:2px;overflow:hidden}
+    .ec-todo-track{flex:1;max-width:80px;height:4px;background:#E2E8F0;border-radius:2px;overflow:hidden}
     .ec-todo-fill{height:100%;background:var(--ok);border-radius:2px}
 
     /* ══ LIVE ACTIVITY PANEL ══ */
     .la-section{margin-bottom:18px}
     .la-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-    .la-header .la-title{font-size:11px;font-weight:700;color:var(--acc);letter-spacing:.06em}
+    .la-header .la-title{font-size:11px;font-weight:700;color:var(--primary);letter-spacing:.06em}
     .la-header .la-agent{font-size:11px;color:var(--muted)}
     .la-header .la-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:4px;animation:pulse 1.5s infinite}
     .la-header .la-dot.idle{background:var(--muted);animation:none}
@@ -369,66 +1402,66 @@
     .sub-sec-title{font-size:13px;font-weight:700;margin-bottom:10px}
     .sub-cats{display:flex;flex-wrap:wrap;gap:8px}
     .sub-cat{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;transition:all .15s;user-select:none}
-    .sub-cat:hover{border-color:var(--acc)}
-    .sub-cat.active{border-color:var(--ok);background:#0a2018}
+    .sub-cat:hover{border-color:var(--secondary)}
+    .sub-cat.active{border-color:var(--secondary);background:#D1FAE5}
     .sub-cat .sc-check{width:16px;height:16px;border-radius:4px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
-    .sub-cat.active .sc-check{background:var(--ok);border-color:var(--ok);color:#000}
+    .sub-cat.active .sc-check{background:var(--secondary);border-color:var(--secondary);color:#fff}
     .sub-cat .sc-label{font-size:12px;font-weight:600}
     .sub-cat .sc-count{font-size:10px;color:var(--muted)}
     .sub-input{background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--text);padding:7px 10px;font-size:12px;outline:none;min-width:0}
-    .sub-input:focus{border-color:var(--acc)}
+    .sub-input:focus{border-color:var(--primary)}
     .sub-kw-list{display:flex;flex-wrap:wrap;gap:6px}
-    .sub-kw{display:flex;align-items:center;gap:4px;padding:4px 8px 4px 10px;border-radius:999px;background:#0f1a38;border:1px solid #1e2e50;font-size:11px;color:var(--acc)}
+    .sub-kw{display:flex;align-items:center;gap:4px;padding:4px 8px 4px 10px;border-radius:999px;background:#DBEAFE;border:1px solid #93C5FD;font-size:11px;color:var(--primary)}
     .sub-kw .kw-del{cursor:pointer;opacity:.5;font-size:13px;padding:0 2px}.sub-kw .kw-del:hover{opacity:1;color:var(--danger)}
     .sub-feed-list{display:flex;flex-direction:column;gap:4px}
     .sub-feed{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--panel2);border-radius:7px;font-size:12px}
-    .sub-feed .sf-name{font-weight:600;min-width:80px;color:var(--acc)}
+    .sub-feed .sf-name{font-weight:600;min-width:80px;color:var(--primary)}
     .sub-feed .sf-url{flex:1;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .sub-feed .sf-cat{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--line)}
+    .sub-feed .sf-cat{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--line);background:#DBEAFE;color:var(--primary)}
     .sub-feed .sf-del{cursor:pointer;color:var(--muted);font-size:14px}.sub-feed .sf-del:hover{color:var(--danger)}
 
     /* ══ CONFIRM DIALOG ══ */
-    .confirm-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;backdrop-filter:blur(3px)}
+    .confirm-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:none;backdrop-filter:blur(3px)}
     .confirm-bg.open{display:flex;align-items:center;justify-content:center}
-    .confirm-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    .confirm-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(15,23,42,.15)}
     .confirm-title{font-size:16px;font-weight:700;margin-bottom:8px}
     .confirm-msg{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
     .confirm-input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:7px;color:var(--text);padding:8px 10px;font-size:12px;outline:none;margin-bottom:14px}
-    .confirm-input:focus{border-color:var(--acc)}
+    .confirm-input:focus{border-color:var(--primary)}
     .confirm-btns{display:flex;gap:8px;justify-content:flex-end}
 
     /* TOAST */
     #toaster{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:300}
-    .toast{font-size:13px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.4);animation:tin .2s;max-width:320px}
-    .toast.ok{border-color:#2ecc8a55;background:#0a1a10}.toast.err{border-color:#ff527055;background:#200a10}
+    .toast{font-size:13px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--text);box-shadow:0 4px 20px rgba(15,23,42,.15);animation:tin .2s;max-width:320px}
+    .toast.ok{border-color:#10B981;background:#ECFDF5}.toast.err{border-color:#EF4444;background:#FEF2F2}
     @keyframes tin{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
 
     /* ══ AGENT STATUS PANEL ══ */
     .as-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:16px}
     .as-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-    .as-title{font-size:13px;font-weight:700;color:var(--fg)}
+    .as-title{font-size:13px;font-weight:700;color:var(--text)}
     .as-gw{font-size:11px;padding:3px 10px;border-radius:999px;margin-left:auto}
-    .as-gw.ok{background:#0a2018;border:1px solid #2ecc8a44;color:var(--ok)}
-    .as-gw.err{background:#200a10;border:1px solid #ff527044;color:var(--danger)}
-    .as-gw.warn{background:#201a08;border:1px solid #f5c84244;color:var(--warn)}
+    .as-gw.ok{background:#D1FAE5;border:1px solid #10B981;color:var(--secondary)}
+    .as-gw.err{background:#FEE2E2;border:1px solid #EF4444;color:var(--danger)}
+    .as-gw.warn{background:#FEF3C7;border:1px solid #F59E0B;color:var(--accent)}
     .as-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
     .as-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;position:relative}
-    .as-card:hover{border-color:var(--acc);background:#0a1228}
+    .as-card:hover{border-color:var(--primary);background:#EFF6FF}
     .as-card .as-emoji{font-size:22px;margin-bottom:3px}
-    .as-card .as-label{font-size:12px;font-weight:700;color:var(--fg)}
+    .as-card .as-label{font-size:12px;font-weight:700;color:var(--text)}
     .as-card .as-role{font-size:10px;color:var(--muted)}
     .as-card .as-status{font-size:10px;margin-top:4px}
     .as-card .as-time{font-size:9px;color:var(--muted);margin-top:2px}
     .as-card .as-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%}
-    .as-dot.running{background:#2ecc8a;box-shadow:0 0 6px #2ecc8a88;animation:pulse 1.5s infinite}
-    .as-dot.idle{background:#4a5568}
-    .as-dot.offline{background:#ff5270;animation:pulse 1.2s infinite}
-    .as-dot.unconfigured{background:#6b7280}
-    .as-wake-btn{font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--acc);color:var(--acc);background:transparent;cursor:pointer;margin-top:6px;transition:background .15s}
-    .as-wake-btn:hover{background:var(--acc);color:#fff}
+    .as-dot.running{background:#10B981;box-shadow:0 0 6px rgba(16,185,129,.5);animation:pulse 1.5s infinite}
+    .as-dot.idle{background:#94A3B8}
+    .as-dot.offline{background:#EF4444;animation:pulse 1.2s infinite}
+    .as-dot.unconfigured{background:#CBD5E1}
+    .as-wake-btn{font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--primary);color:var(--primary);background:transparent;cursor:pointer;margin-top:6px;transition:background .15s}
+    .as-wake-btn:hover{background:var(--primary);color:#fff}
     .as-wake-btn:disabled{opacity:.4;cursor:not-allowed}
     .as-refresh{font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid var(--line);color:var(--muted);background:transparent;cursor:pointer;transition:background .15s}
-    .as-refresh:hover{background:var(--panel2);color:var(--fg)}
+    .as-refresh:hover{background:var(--panel2);color:var(--text)}
     .as-wake-all{font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid var(--warn);color:var(--warn);background:transparent;cursor:pointer;transition:background .15s;margin-left:6px}
     .as-wake-all:hover{background:var(--warn);color:#fff}
     .as-summary{font-size:11px;color:var(--muted);display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
@@ -436,11 +1469,11 @@
 
     /* ══ OFFICIALS ══ */
     /* activity bar */
-    .off-activity{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#0a1228;border:1px solid #1a2a4a;border-radius:10px;margin-bottom:14px;font-size:12px;flex-wrap:wrap}
+    .off-activity{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;margin-bottom:14px;font-size:12px;flex-wrap:wrap}
     .act-label{color:var(--muted);flex-shrink:0}
-    .act-dot{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#0f1a38;border:1px solid #1e2e50;margin:2px}
-    .act-dot.alive{border-color:#2ecc8a44;background:#0a2018;color:var(--ok)}
-    .act-dot.warn{border-color:#f5c84244;background:#201a08;color:var(--warn)}
+    .act-dot{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;background:#DBEAFE;border:1px solid #93C5FD;margin:2px}
+    .act-dot.alive{border-color:#10B981;background:#D1FAE5;color:var(--ok)}
+    .act-dot.warn{border-color:#F59E0B;background:#FEF3C7;color:var(--warn)}
     .act-dot.idle{color:var(--muted)}
 
     /* summary row */
@@ -448,7 +1481,7 @@
     .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
     .kpi-v{font-size:24px;font-weight:800;margin-bottom:3px}
     .kpi-l{font-size:11px;color:var(--muted)}
-    .kpi-v.gold{color:#f5c842}.kpi-v.green{color:var(--ok)}.kpi-v.blue{color:var(--acc)}.kpi-v.warn{color:var(--warn)}
+    .kpi-v.gold{color:#f5c842}.kpi-v.green{color:var(--ok)}.kpi-v.blue{color:var(--primary)}.kpi-v.warn{color:var(--warn)}
 
     /* main layout */
     .off-layout{display:grid;grid-template-columns:260px 1fr;gap:14px}
@@ -460,13 +1493,13 @@
     .orl-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line);transition:background .1s}
     .orl-item:last-child{border-bottom:none}
     .orl-item:hover{background:var(--panel2)}
-    .orl-item.selected{background:#0a1228;border-left:3px solid var(--acc)}
+    .orl-item.selected{background:#EFF6FF;border-left:3px solid var(--primary)}
     .orl-medal{font-size:16px;min-width:20px;text-align:center}
     .orl-emoji{font-size:18px}
     .orl-name{flex:1}.orl-role{font-size:12px;font-weight:700}.orl-org{font-size:10px;color:var(--muted)}
-    .orl-score{font-size:11px;font-weight:700;color:var(--acc)}
+    .orl-score{font-size:11px;font-weight:700;color:var(--primary)}
     .orl-hbdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .orl-hbdot.active{background:var(--ok)}.orl-hbdot.warn{background:var(--warn)}.orl-hbdot.stalled{background:var(--danger);animation:pulse 1.2s infinite}.orl-hbdot.idle{background:#2a3a5a}
+    .orl-hbdot.active{background:var(--ok)}.orl-hbdot.warn{background:var(--warn)}.orl-hbdot.stalled{background:var(--danger);animation:pulse 1.2s infinite}.orl-hbdot.idle{background:#CBD5E1}
 
     /* right: detail */
     .off-detail{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;min-height:400px}
@@ -476,7 +1509,7 @@
     .od-emoji{font-size:40px}
     .od-name{font-size:22px;font-weight:800}
     .od-role{font-size:13px;color:var(--muted);margin-top:2px}
-    .od-rank-badge{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid #f5c84244;color:#f5c842;background:#201a08;margin-top:4px;display:inline-block}
+    .od-rank-badge{font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid #FCD34D;color:#D97706;background:#FEF3C7;margin-top:4px;display:inline-block}
     .od-hb{margin-left:auto;text-align:right}
 
     .od-section{margin-bottom:18px}
@@ -491,32 +1524,32 @@
     .tbar{margin-bottom:7px}
     .tbar-hdr{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
     .tbar-label{color:var(--muted)}.tbar-val{font-weight:600}
-    .tbar-track{height:6px;background:#0e1320;border-radius:3px;overflow:hidden}
+    .tbar-track{height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden}
     .tbar-fill{height:100%;border-radius:3px}
 
     /* cost row */
     .od-cost-row{display:flex;gap:10px;flex-wrap:wrap}
     .cost-chip{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
     .cost-chip b{font-size:15px}
-    .cost-chip.hi{border-color:#ff527044}.cost-chip.md{border-color:#f5c84244}.cost-chip.lo{border-color:#2ecc8a44}
+    .cost-chip.hi{border-color:#FECACA;background:#FEF2F2}.cost-chip.md{border-color:#FDE68A;background:#FFFBEB}.cost-chip.lo{border-color:#A7F3D0;background:#ECFDF5}
 
     /* edict list */
     .od-edict-list{display:flex;flex-direction:column;gap:5px}
     .oe-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--panel2);border-radius:7px;font-size:12px;cursor:pointer}
-    .oe-item:hover{background:#141c30}
-    .oe-id{font-size:10px;color:var(--acc);font-weight:700;min-width:110px}
+    .oe-item:hover{background:#EFF6FF}
+    .oe-id{font-size:10px;color:var(--primary);font-weight:700;min-width:110px}
     .oe-title{flex:1;color:var(--text)}
     .oe-state{font-size:10px}
 
     .off-grid{display:none} /* legacy, hidden */
 
     /* ══ 早读简报 ══ */
-    .mn-hdr{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding:14px 18px;background:linear-gradient(135deg,#0a1228,#140e28);border:1px solid #1a2a4a;border-radius:14px}
-    .mn-date{font-size:20px;font-weight:800;background:linear-gradient(135deg,#f5c842,#ff9a3c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .mn-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .mn-hdr{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding:14px 18px;background:linear-gradient(135deg,#0EA5E9,#10B981);border:1px solid #7DD3FC;border-radius:14px}
+    .mn-date{font-size:20px;font-weight:800;background:linear-gradient(135deg,#FEF3C7,#FDE68A);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .mn-sub{font-size:12px;color:#F0F9FF;margin-top:2px}
     .mn-hdr-r{margin-left:auto;display:flex;gap:8px;align-items:center}
-    .btn-morning-refresh{font-size:12px;padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#f5c842,#ff9a3c);color:#000;border:none;cursor:pointer;font-weight:700}
-    .btn-morning-refresh:hover{filter:brightness(1.1)}
+    .btn-morning-refresh{font-size:12px;padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#92400E;border:none;cursor:pointer;font-weight:700}
+    .btn-morning-refresh:hover{filter:brightness(1.05)}
     .mn-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
     .mn-cat{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
     .mn-cat-hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
@@ -531,7 +1564,7 @@
     .mn-title{font-size:12px;font-weight:700;line-height:1.4;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .mn-summary{font-size:11px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .mn-meta{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:10px;color:var(--muted)}
-    .mn-source{color:var(--acc)}.mn-time{margin-left:auto}
+    .mn-source{color:var(--primary)}.mn-time{margin-left:auto}
     .mn-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:13px}
     .mn-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--muted);font-size:13px}
 
@@ -558,7 +1591,7 @@
     .mb-headline{font-size:13px;font-weight:700;line-height:1.4;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .mb-summary{font-size:11px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .mb-meta{display:flex;align-items:center;gap:8px;margin-top:5px}
-    .mb-source{font-size:10px;color:var(--acc)}
+    .mb-source{font-size:10px;color:var(--primary)}
     .mb-time{font-size:10px;color:var(--muted)}
 
     .mb-empty{text-align:center;padding:30px;color:var(--muted);font-size:13px}
@@ -570,14 +1603,14 @@
     code{font-size:11px;background:var(--panel2);padding:2px 6px;border-radius:4px;font-family:monospace}
 
     /* ══ COURT CEREMONY ══ */
-    .ceremony-bg{position:fixed;inset:0;z-index:9999;background:#07090f;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;animation:crmFadeIn .6s ease forwards;cursor:pointer}
+    .ceremony-bg{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#F0F9FF,#E0F2FE);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;animation:crmFadeIn .6s ease forwards;cursor:pointer}
     .ceremony-bg.out{animation:crmFadeOut .5s ease forwards}
-    .crm-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(106,158,255,.08),transparent 70%);animation:crmPulse 3s ease-in-out infinite}
-    .crm-line1{font-family:'Noto Serif SC',serif;font-size:52px;font-weight:900;color:#dde4f8;letter-spacing:.15em;opacity:0;transform:translateY(20px)}
-    .crm-line2{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;color:var(--acc);letter-spacing:.2em;margin-top:12px;opacity:0;transform:translateY(15px)}
-    .crm-line3{font-size:14px;color:var(--muted);margin-top:24px;opacity:0;letter-spacing:.05em}
-    .crm-date{font-size:12px;color:#2a3555;margin-top:40px;opacity:0;letter-spacing:.08em}
-    .crm-skip{font-size:11px;color:#2a3555;margin-top:18px;opacity:0;animation:crmChar .4s 2.5s forwards}
+    .crm-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.12),transparent 70%);animation:crmPulse 3s ease-in-out infinite}
+    .crm-line1{font-family:'Noto Serif SC',serif;font-size:52px;font-weight:900;color:#0F172A;letter-spacing:.15em;opacity:0;transform:translateY(20px)}
+    .crm-line2{font-family:'Noto Serif SC',serif;font-size:22px;font-weight:700;color:#0EA5E9;letter-spacing:.2em;margin-top:12px;opacity:0;transform:translateY(15px)}
+    .crm-line3{font-size:14px;color:var(--text-light);margin-top:24px;opacity:0;letter-spacing:.05em}
+    .crm-date{font-size:12px;color:#64748B;margin-top:40px;opacity:0;letter-spacing:.08em}
+    .crm-skip{font-size:11px;color:#64748B;margin-top:18px;opacity:0;animation:crmChar .4s 2.5s forwards}
     .crm-line1.in{animation:crmSlideUp .6s .3s ease forwards}
     .crm-line2.in{animation:crmSlideUp .5s 1.1s ease forwards}
     .crm-line3.in{animation:crmSlideUp .5s 1.6s ease forwards}
@@ -591,7 +1624,7 @@
     /* ══ MEMORIAL TAB ══ */
     .mem-list{display:flex;flex-direction:column;gap:8px}
     .mem-card{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color .12s}
-    .mem-card:hover{border-color:var(--acc)}
+    .mem-card:hover{border-color:var(--primary)}
     .mem-icon{font-size:28px;flex-shrink:0;margin-top:2px}
     .mem-info{flex:1;min-width:0}
     .mem-title{font-size:14px;font-weight:700;margin-bottom:4px}
@@ -600,7 +1633,7 @@
     .mem-tag{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
     .mem-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
     .mem-date{font-size:10px;color:var(--muted)}
-    .mem-cost{font-size:10px;color:var(--acc)}
+    .mem-cost{font-size:10px;color:var(--primary)}
     .mem-empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
 
     /* memorial detail */
@@ -608,11 +1641,11 @@
     .md-timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:var(--line)}
     .md-tl-item{position:relative;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
     .md-tl-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
-    .md-tl-dot{position:absolute;left:-20px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--acc);border:2px solid var(--bg)}
+    .md-tl-dot{position:absolute;left:-20px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--primary);border:2px solid var(--bg)}
     .md-tl-dot.green{background:var(--ok)}
     .md-tl-dot.yellow{background:var(--warn)}
     .md-tl-dot.red{background:var(--danger)}
-    .md-tl-from{font-size:11px;font-weight:700;color:var(--acc)}
+    .md-tl-from{font-size:11px;font-weight:700;color:var(--primary)}
     .md-tl-to{font-size:11px;color:var(--muted)}
     .md-tl-remark{font-size:12px;margin-top:3px;line-height:1.5}
     .md-tl-time{font-size:10px;color:var(--muted);margin-top:2px}
@@ -620,33 +1653,34 @@
     /* ══ TEMPLATE TAB ══ */
     .tpl-cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
     .tpl-cat{font-size:12px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;transition:all .12s}
-    .tpl-cat:hover{border-color:var(--acc);color:var(--text)}
-    .tpl-cat.active{border-color:var(--acc);color:var(--acc);background:#0a1228}
+    .tpl-cat:hover{border-color:var(--primary);color:var(--text)}
+    .tpl-cat.active{border-color:var(--primary);color:var(--primary);background:#DBEAFE}
     .tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
     .tpl-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;transition:border-color .12s;cursor:pointer;display:flex;flex-direction:column}
-    .tpl-card:hover{border-color:var(--acc)}
+    .tpl-card:hover{border-color:var(--primary)}
     .tpl-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
     .tpl-icon{font-size:24px}
     .tpl-name{font-size:14px;font-weight:700}
     .tpl-pop{font-size:10px;color:var(--muted);margin-left:auto}
     .tpl-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;flex:1}
     .tpl-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-    .tpl-dept{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--panel2);color:var(--acc)}
+    .tpl-dept{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--panel2);color:var(--primary)}
     .tpl-est{font-size:10px;color:var(--muted);margin-left:auto}
-    .tpl-go{font-size:11px;padding:5px 14px;border-radius:6px;background:var(--acc);color:#fff;border:none;cursor:pointer;font-weight:600;margin-left:8px;transition:opacity .12s}
+    .tpl-go{font-size:11px;padding:5px 14px;border-radius:6px;background:var(--primary);color:#fff;border:none;cursor:pointer;font-weight:600;margin-left:8px;transition:opacity .12s}
     .tpl-go:hover{opacity:.85}
     .tpl-form{margin-top:18px}
     .tpl-field{margin-bottom:14px}
     .tpl-label{font-size:12px;font-weight:600;display:block;margin-bottom:6px}
-    .tpl-input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none}
+    .tpl-input{width:100%;padding:10px 12px;background:#FFFFFF;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none}
+    .tpl-input:focus{border-color:var(--primary)}
   </style>
 </head>
 <body>
-<!-- COURT CEREMONY -->
+<!-- CLASS CEREMONY -->
 <div class="ceremony-bg" id="ceremony" style="display:none" onclick="skipCeremony()">
   <div class="crm-glow"></div>
-  <div class="crm-line1" id="crm-l1">早读开始</div>
-  <div class="crm-line2" id="crm-l2">各部听旨</div>
+  <div class="crm-line1" id="crm-l1">📚 早读开始</div>
+  <div class="crm-line2" id="crm-l2">各班委请注意</div>
   <div class="crm-line3" id="crm-l3"></div>
   <div class="crm-date" id="crm-date"></div>
   <div class="crm-skip">点击任意处跳过</div>
@@ -657,7 +1691,7 @@
   <!-- HEADER -->
   <div class="hdr">
     <div>
-      <div class="logo">⚔️ 军机处 · ClassBrainAI总控台</div>
+      <div class="logo">🎓 ClassBrainAI · 智能班级管理系统</div>
       <div class="sub">班主任视角 · 实时任务追踪</div>
     </div>
     <div class="hdr-r">
@@ -670,15 +1704,15 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <div class="tab active" data-tab="edicts">📜 任务看板 <span class="tbadge" id="tb-e">0</span></div>
-    <div class="tab" data-tab="monitor">🔭 省部调度 <span class="tbadge" id="tb-m">0</span></div>
+    <div class="tab active" data-tab="edicts">📋 任务看板 <span class="tbadge" id="tb-e">0</span></div>
+    <div class="tab" data-tab="monitor">📊 班委调度 <span class="tbadge" id="tb-m">0</span></div>
     <div class="tab" data-tab="officials">👥 班委总览</div>
     <div class="tab" data-tab="models">⚙️ 模型配置</div>
     <div class="tab" data-tab="skills">🛠️ 技能配置</div>
     <div class="tab" data-tab="sessions">💬 小任务 <span class="tbadge" id="tb-s">0</span></div>
-    <div class="tab" data-tab="memorials">📜 奏折阁 <span class="tbadge" id="tb-mem">0</span></div>
-    <div class="tab" data-tab="templates">📜 旨库</div>
-    <div class="tab" data-tab="morning">📰 天下要闻</div>
+    <div class="tab" data-tab="memorials">📝 汇报记录 <span class="tbadge" id="tb-mem">0</span></div>
+    <div class="tab" data-tab="templates">📚 任务模板</div>
+    <div class="tab" data-tab="morning">📰 早读要闻</div>
   </div>
 
   <!-- ══ 任务看板 ══ -->
@@ -699,10 +1733,10 @@
     <div id="edict-grid" class="edict-grid"></div>
   </div>
 
-  <!-- ══ 省部调度 ══ -->
+  <!-- ══ 班委调度 ══ -->
   <div class="panel" id="panel-monitor">
     <div id="agent-status-panel"></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">各省部当前承接任务与执行状态 · 每5秒自动刷新</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">各班委当前承接任务与执行状态 · 每5秒自动刷新</div>
     <div class="duty-grid" id="duty-grid"></div>
   </div>
 
@@ -718,44 +1752,46 @@
 
   <!-- ══ 模型配置 ══ -->
   <div class="panel" id="panel-models">
-    <div class="sec-title" style="margin-bottom:14px">各省部 · 模型配置 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted)">— 更改后自动重启 Gateway（约5秒）</span></div>
+    <div class="sec-title" style="margin-bottom:14px">各班委 · 模型配置 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted)">— 更改后自动重启 Gateway（约5秒）</span></div>
     <div class="model-grid" id="model-grid"></div>
     <div class="cl-wrap"><div class="cl-title">变更记录</div><div id="cl-list"></div></div>
   </div>
 
   <!-- ══ 技能配置 ══ -->
   <div class="panel" id="panel-skills">
-    <div class="sec-title" style="margin-bottom:14px">各省部 · Skills 配置 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted)">— 点击技能查看详情，底部可添加新技能</span></div>
+    <div class="sec-title" style="margin-bottom:14px">各班委 · Skills 配置 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted)">— 点击技能查看详情，底部可添加新技能</span></div>
     <div class="skills-grid" id="skills-grid"></div>
   </div>
 
   <!-- ══ 小任务/会话监控 ══ -->
   <div class="panel" id="panel-sessions">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">飞书/Telegram 中的日常对话与小任务 · 非JJC圣旨类任务</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">飞书/Telegram 中的日常对话与小任务 · 非CB正式任务</div>
     <div class="sess-filters">
       <span style="font-size:11px;color:var(--muted)">筛选：</span>
       <span class="sess-filter active" data-sf="all" onclick="filterSessions('all',this)">全部</span>
       <span class="sess-filter" data-sf="active" onclick="filterSessions('active',this)">进行中</span>
-      <span class="sess-filter" data-sf="zhongshu" onclick="filterSessions('zhongshu',this)">学习委员</span>
+      <span class="sess-filter" data-sf="study" onclick="filterSessions('study',this)">学习委员</span>
       <span class="sess-filter" data-sf="shangshu" onclick="filterSessions('shangshu',this)">副班长</span>
-      <span class="sess-filter" data-sf="libu" onclick="filterSessions('libu',this)">礼部</span>
-      <span class="sess-filter" data-sf="hubu" onclick="filterSessions('hubu',this)">户部</span>
-      <span class="sess-filter" data-sf="bingbu" onclick="filterSessions('bingbu',this)">兵部</span>
-      <span class="sess-filter" data-sf="xingbu" onclick="filterSessions('xingbu',this)">刑部</span>
-      <span class="sess-filter" data-sf="gongbu" onclick="filterSessions('gongbu',this)">工部</span>
-      <span class="sess-filter" data-sf="libu_hr" onclick="filterSessions('libu_hr',this)">吏部</span>
+      <span class="sess-filter" data-sf="study" onclick="filterSessions('study',this)">学习委员</span>
+      <span class="sess-filter" data-sf="morning_reading" onclick="filterSessions('morning_reading',this)">早读委员</span>
+      <span class="sess-filter" data-sf="arts" onclick="filterSessions('arts',this)">文艺委员</span>
+      <span class="sess-filter" data-sf="discipline" onclick="filterSessions('discipline',this)">纪律委员</span>
+      <span class="sess-filter" data-sf="finance" onclick="filterSessions('finance',this)">生活委员</span>
+      <span class="sess-filter" data-sf="logistics" onclick="filterSessions('logistics',this)">后勤委员</span>
+      <span class="sess-filter" data-sf="organization" onclick="filterSessions('organization',this)">组织委员</span>
+      <span class="sess-filter" data-sf="technical" onclick="filterSessions('technical',this)">技术委员</span>
       <span class="sess-filter" data-sf="menxia" onclick="filterSessions('menxia',this)">班委主席</span>
-      <span class="sess-filter" data-sf="zaochao" onclick="filterSessions('zaochao',this)">钦天监</span>
+      <span class="sess-filter" data-sf="chair" onclick="filterSessions('chair',this)">班委主席</span>
     </div>
     <div id="sess-grid" class="sess-grid"></div>
   </div>
 
-  <!-- ══ 奏折阁 ══ -->
+  <!-- ══ 汇报记录 ══ -->
   <div class="panel" id="panel-memorials">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div style="flex:1">
-        <div class="sec-title" style="margin-bottom:2px">📜 奏折阁 · 任务存档</div>
-        <div style="font-size:11px;color:var(--muted)">任务完成后自动生成奏折，记录从下旨到完成的完整过程</div>
+        <div class="sec-title" style="margin-bottom:2px">📝 汇报记录 · 任务存档</div>
+        <div style="font-size:11px;color:var(--muted)">任务完成后自动生成汇报，记录从发布到完成的完整过程</div>
       </div>
       <select id="mem-filter" onchange="renderMemorials()" style="font-size:11px;padding:4px 10px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--text);outline:none">
         <option value="all">全部</option>
@@ -766,12 +1802,12 @@
     <div id="mem-list" class="mem-list"></div>
   </div>
 
-  <!-- ══ 圣旨模板库 ══ -->
+  <!-- ══ 任务模板库 ══ -->
   <div class="panel" id="panel-templates">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div style="flex:1">
-        <div class="sec-title" style="margin-bottom:2px">📜 旨库 · 圣旨模板</div>
-        <div style="font-size:11px;color:var(--muted)">选择模板、填写参数、一键下旨 — 降低使用门槛，快速启动任务</div>
+        <div class="sec-title" style="margin-bottom:2px">📚 任务模板库</div>
+        <div style="font-size:11px;color:var(--muted)">选择模板、填写参数、一键发布 — 降低使用门槛，快速启动任务</div>
       </div>
     </div>
     <div class="tpl-cats" id="tpl-cats"></div>
@@ -821,7 +1857,7 @@
           <input id="feishu-webhook" class="sub-input" placeholder="飞书 Webhook URL（留空则不推送）" style="flex:1">
           <button class="btn btn-p" onclick="saveSubConfig()" style="font-size:12px;padding:6px 14px">保存全部配置</button>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:6px">采集完成后自动推送简报链接到飞书群。<a href="https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot" target="_blank" style="color:var(--acc)">如何创建自定义机器人？</a></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">采集完成后自动推送简报链接到飞书群。<a href="https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot" target="_blank" style="color:var(--primary)">如何创建自定义机器人？</a></div>
       </div>
       <div id="sub-status" style="font-size:12px;margin-top:8px;display:none"></div>
     </div>
@@ -904,21 +1940,21 @@ function restoreGlobalScanState(){
   renderGlobalScanDetails();
 }
 
-/* ══ PIPELINE DEFINITION ══ */
+/* ══ PIPELINE DEFINITION - ClassBrainAI 班级主题 ══ */
 const PIPE = [
-  {key:'Inbox',    dept:'班主任',   icon:'👑', action:'下旨'},
-  {key:'Taizi',    dept:'班长',   icon:'🤴', action:'分拣'},
-  {key:'Zhongshu', dept:'学习委员', icon:'📜', action:'起草'},
-  {key:'Menxia',   dept:'班委主席', icon:'🔍', action:'审议'},
-  {key:'Assigned', dept:'副班长', icon:'📮', action:'派发'},
+  {key:'Inbox',    dept:'班主任',   icon:'👨‍🏫', action:'发布'},
+  {key:'Monitor',  dept:'班长',   icon:'👤', action:'分拣'},
+  {key:'Study',    dept:'学习委员', icon:'📚', action:'规划'},
+  {key:'Chair',    dept:'班委主席', icon:'👨‍💼', action:'审议'},
+  {key:'Assigned', dept:'副班长', icon:'📋', action:'派发'},
   {key:'Doing',    dept:'各班委',   icon:'⚙️', action:'执行'},
-  {key:'Review',   dept:'副班长', icon:'🔎', action:'汇总'},
-  {key:'Done',     dept:'汇报',   icon:'✅', action:'完成'},
+  {key:'Review',   dept:'副班长', icon:'🔍', action:'汇总'},
+  {key:'Done',     dept:'完成',   icon:'✅', action:'归档'},
 ];
-const PIPE_STATE_IDX = {Inbox:0,Pending:0,Taizi:1,Zhongshu:2,Menxia:3,Assigned:4,Doing:5,Review:6,Done:7,Blocked:5,Cancelled:5,Next:4};
+const PIPE_STATE_IDX = {Inbox:0,Pending:0,Monitor:1,Study:2,Chair:3,Assigned:4,Doing:5,Review:6,Done:7,Blocked:5,Cancelled:5,Next:4};
 
-/* ══ DEPT COLORS ══ */
-const DEPT_COLOR = {'班长':'#e8a040','学习委员':'#a07aff','班委主席':'#6a9eff','副班长':'#6aef9a','礼部':'#f5c842','户部':'#ff9a6a','兵部':'#ff5270','刑部':'#cc4444','工部':'#44aaff','吏部':'#9b59b6','班主任':'#ffd700','汇报':'#2ecc8a'};
+/* ══ DEPT COLORS - ClassBrainAI 班委主题 ══ */
+const DEPT_COLOR = {'班长':'#F59E0B','学习委员':'#8B5CF6','班委主席':'#3B82F6','副班长':'#10B981','技术委员':'#EF4444','后勤委员':'#0EA5E9','财务委员':'#F97316','文艺委员':'#EAB308','纪律委员':'#DC2626','组织委员':'#10B981','班主任':'#0EA5E9','完成':'#10B981'};
 function deptColor(d){return DEPT_COLOR[d]||'#6a9eff'}
 
 /* ══ UTILS ══ */
@@ -926,18 +1962,18 @@ const esc=s=>s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 async function fetchJ(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error(r.status);return r.json()}
 async function postJ(u,d){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});return r.json()}
 function toast(msg,type='ok',ms=3000){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('toaster').appendChild(el);setTimeout(()=>el.remove(),ms)}
-const STATE_LABEL={Inbox:'收件',Pending:'待处理',Taizi:'班长分拣',Zhongshu:'中书起草',Menxia:'门下审议',Assigned:'已派发',Doing:'执行中',Review:'待审查',Done:'已完成',Blocked:'阻塞',Cancelled:'已取消',Next:'待执行'};
+const STATE_LABEL={Inbox:'收件',Pending:'待处理',Monitor:'班长处理',Study:'学习委员规划',Chair:'班委主席审议',Assigned:'已派发',Doing:'执行中',Review:'待审查',Done:'已完成',Blocked:'已暂停',Cancelled:'已取消',Next:'待执行',Technical:'技术委员执行',Organization:'组织委员处理'};
 // 根据轮次动态生成状态标签
 function stateLabel(t){
   const r = t.review_round||0;
-  if(t.state==='Menxia' && r>1) return `门下审议（第${r}轮）`;
-  if(t.state==='Zhongshu' && r>0) return `中书修订（第${r}轮）`;
+  if(t.state==='Chair' && r>1) return `班委主席审议（第${r}轮）`;
+  if(t.state==='Study' && r>0) return `学习委员修订（第${r}轮）`;
   return STATE_LABEL[t.state]||t.state;
 }
 
-/* ══ TASK CLASSIFICATION ══ */
-// 班主任的任务：JJC-* 开头，有真实标题
-function isEdict(t){ return /^JJC-/i.test(t.id||'') }
+/* ══ TASK CLASSIFICATION - ClassBrainAI ══ */
+// 班主任的任务：CB-* 开头，有真实标题
+function isEdict(t){ return /^CB-/i.test(t.id||'') }
 // 系统会话：OC-* / MC-* 开头
 function isSession(t){ return /^(OC-|MC-)/i.test(t.id||'') }
 // 归档判定：Done/Cancelled 或手动标记 archived
@@ -983,7 +2019,7 @@ function renderEdicts(tasks){
   else if(edictFilter==='archived') edicts = archivedEdicts;
   else edicts = allEdicts;
   edicts.sort((a,b) => {
-    const order = {Doing:0,Review:1,Assigned:2,Menxia:3,Zhongshu:4,Taizi:5,Inbox:6,Blocked:7,Next:8,Done:9,Cancelled:10};
+    const order = {Doing:0,Review:1,Assigned:2,Chair:3,Study:4,Monitor:5,Inbox:6,Blocked:7,Next:8,Done:9,Cancelled:10,Technical:2,Organization:2};
     return (order[a.state]??9) - (order[b.state]??9);
   });
   // Tab badge = active count only
@@ -1023,7 +2059,7 @@ function renderEdicts(tasks){
       </div>
       ${t.now && t.now !== '-' ? `<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:6px">${esc(t.now.substring(0,80))}</div>` : ''}
       ${(t.review_round||0)>0 ? `<div style="font-size:11px;margin-bottom:6px">
-        ${Array.from({length:t.review_round||0},(_,i)=>`<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${i<(t.review_round||0)-1?'#1a3a6a':'var(--acc)'}22;border:1px solid ${i<(t.review_round||0)-1?'#2a4a8a':'var(--acc)'};font-size:9px;text-align:center;line-height:13px;margin-right:2px;color:${i<(t.review_round||0)-1?'#4a6aaa':'var(--acc)'}">${i+1}</span>`).join('')}
+        ${Array.from({length:t.review_round||0},(_,i)=>`<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${i<(t.review_round||0)-1?'#CBD5E1':'#DBEAFE'};border:1px solid ${i<(t.review_round||0)-1?'#94A3B8':'var(--primary)'};font-size:9px;text-align:center;line-height:13px;margin-right:2px;color:${i<(t.review_round||0)-1?'#64748B':'var(--primary)'}">${i+1}</span>`).join('')}
         <span style="color:var(--muted);font-size:10px">第 ${t.review_round} 轮磋商</span>
       </div>` : ''}
       ${todoTotal ? `<div class="ec-todo-bar">
@@ -1033,7 +2069,7 @@ function renderEdicts(tasks){
       </div>` : ''}
       <div class="ec-footer">
         <span class="hb ${hb.status}">${esc(hb.label)}</span>
-        ${isBlocked ? `<span class="tag" style="border-color:#ff527044;color:var(--danger);background:#200a10">🚫 ${esc(t.block)}</span>` : ''}
+        ${isBlocked ? `<span class="tag" style="border-color:#EF4444;color:var(--danger);background:#FEF2F2">🚫 ${esc(t.block)}</span>` : ''}
         ${t.eta && t.eta !== '-' ? `<span style="font-size:11px;color:var(--muted)">📅 ${esc(t.eta)}</span>` : ''}
       </div>
       <div class="ec-actions" onclick="event.stopPropagation()">
@@ -1140,17 +2176,17 @@ async function wakeAllAgents(){
 /* ══ DEPT MONITOR ══ */
 function renderMonitor(tasks){
   const DEPTS = [
-    {id:'taizi',   label:'班长',  emoji:'🤴',role:'班长',    rank:'储君'},
-    {id:'zhongshu',label:'学习委员',emoji:'📜',role:'中书令',  rank:'正一品'},
-    {id:'menxia',  label:'班委主席',emoji:'🔍',role:'侍中',    rank:'正一品'},
-    {id:'shangshu',label:'副班长',emoji:'📮',role:'尚书令',  rank:'正一品'},
-    {id:'libu',    label:'礼部',  emoji:'📝',role:'礼部尚书',rank:'正二品'},
-    {id:'hubu',    label:'户部',  emoji:'💰',role:'户部尚书',rank:'正二品'},
-    {id:'bingbu',  label:'兵部',  emoji:'⚔️',role:'兵部尚书',rank:'正二品'},
-    {id:'xingbu',  label:'刑部',  emoji:'⚖️',role:'刑部尚书',rank:'正二品'},
-    {id:'gongbu',  label:'工部',  emoji:'🔧',role:'工部尚书',rank:'正二品'},
-    {id:'libu_hr', label:'吏部',  emoji:'👔',role:'吏部尚书',rank:'正二品'},
-    {id:'zaochao', label:'钦天监',emoji:'📰',role:'朝报官',  rank:'正三品'},
+    {id:'monitor',    label:'班长',      emoji:'👤',role:'班长',      rank:'正一品'},
+    {id:'vice_monitor',label:'副班长',    emoji:'📋',role:'副班长',    rank:'正一品'},
+    {id:'chair',      label:'班委主席',  emoji:'👨‍💼',role:'班委主席',  rank:'正一品'},
+    {id:'study',      label:'学习委员',  emoji:'📚',role:'学习委员',  rank:'正二品'},
+    {id:'morning_reading',label:'早读委员',emoji:'📖',role:'早读委员',rank:'正二品'},
+    {id:'arts',       label:'文艺委员',  emoji:'🎨',role:'文艺委员',  rank:'正二品'},
+    {id:'discipline', label:'纪律委员',  emoji:'📏',role:'纪律委员',  rank:'正二品'},
+    {id:'finance',    label:'生活委员',  emoji:'💰',role:'生活委员',  rank:'正二品'},
+    {id:'logistics',  label:'后勤委员',  emoji:'🔧',role:'后勤委员',  rank:'正二品'},
+    {id:'organization',label:'组织委员', emoji:'📋',role:'组织委员', rank:'正二品'},
+    {id:'technical',  label:'技术委员',  emoji:'💻',role:'技术委员',  rank:'正二品'},
   ];
 
   // 每个部门当前承接的任务：从 JJC 任务里找 org 匹配且非 Done 的
@@ -1255,7 +2291,7 @@ function openTask(id){
           <div class="mp-node ${s.status}">
             ${s.status==='done' ? '<div class="mp-done-tick">✓</div>' : ''}
             <div class="mp-icon">${s.icon}</div>
-            <div class="mp-dept" style="${s.status==='active'?'color:var(--acc)':s.status==='done'?'color:var(--ok)':''}">${s.dept}</div>
+            <div class="mp-dept" style="${s.status==='active'?'color:var(--primary)':s.status==='done'?'color:var(--ok)':''}">${s.dept}</div>
             <div class="mp-action">${s.action}</div>
           </div>
           ${i < stages.length-1 ? `<div class="mp-arrow" style="${s.status==='done'?'color:var(--ok);opacity:.6':''}">→</div>` : ''}
@@ -1268,9 +2304,9 @@ function openTask(id){
       ${canStop ? `<button class="btn-action btn-stop" onclick="confirmAction('${esc(t.id)}','stop')">⏸ 叫停任务</button>
       <button class="btn-action btn-cancel" onclick="confirmAction('${esc(t.id)}','cancel')">🚫 取消任务</button>` : ''}
       ${canResume ? `<button class="btn-action btn-resume" onclick="taskAction('${esc(t.id)}','resume','恢复执行')">▶️ 恢复执行</button>` : ''}
-      ${['Review','Menxia'].includes(t.state) ? `<button class="btn-action" style="background:#2ecc8a22;color:#2ecc8a;border:1px solid #2ecc8a44" onclick="reviewAction('${esc(t.id)}','approve')">✅ 批准</button>
+      ${['Review','Chair'].includes(t.state) ? `<button class="btn-action" style="background:#2ecc8a22;color:#2ecc8a;border:1px solid #2ecc8a44" onclick="reviewAction('${esc(t.id)}','approve')">✅ 批准</button>
       <button class="btn-action" style="background:#ff527022;color:#ff5270;border:1px solid #ff527044" onclick="reviewAction('${esc(t.id)}','reject')">🚫 驳回</button>` : ''}
-      ${['Pending','Taizi','Zhongshu','Menxia','Assigned','Doing','Review','Next'].includes(t.state) ? `<button class="btn-action" style="background:#7c5cfc18;color:#7c5cfc;border:1px solid #7c5cfc44" onclick="advanceState('${esc(t.id)}','${esc(t.state)}')">⏩ 推进到下一步</button>` : ''}
+      ${['Pending','Monitor','Study','Chair','Assigned','Doing','Review','Next','Technical','Organization'].includes(t.state) ? `<button class="btn-action" style="background:#7c5cfc18;color:#7c5cfc;border:1px solid #7c5cfc44" onclick="advanceState('${esc(t.id)}','${esc(t.state)}')">⏩ 推进到下一步</button>` : ''}
     </div>
 
     <!-- 班长调度 -->
@@ -1547,10 +2583,10 @@ function renderLiveActivity(data){
   const phaseBar = document.getElementById('la-phase-bar');
   if(phaseBar && data.phaseDurations && data.phaseDurations.length){
     const maxDur = Math.max(...data.phaseDurations.map(p=>p.durationSec||1), 1);
-    const phaseColors = {'班主任':'#eab308','班长':'#f97316','学习委员':'#3b82f6','班委主席':'#8b5cf6','副班长':'#10b981','各班委':'#06b6d4','礼部':'#ec4899','户部':'#f59e0b','兵部':'#ef4444','刑部':'#6366f1','工部':'#14b8a6','吏部':'#d946ef'};
+    const phaseColors = {'班主任':'#0EA5E9','班长':'#F59E0B','副班长':'#10B981','班委主席':'#8B5CF6','学习委员':'#3B82F6','早读委员':'#EC4899','文艺委员':'#EAB308','纪律委员':'#EF4444','生活委员':'#F97316','后勤委员':'#14B8A6','组织委员':'#6366F1','技术委员':'#06B6D4','各班委':'#64748B'};
     let totalDurText = data.totalDuration ? `<span style="margin-left:auto;font-size:10px;color:var(--muted)">总耗时 ${data.totalDuration}</span>` : '';
     phaseBar.innerHTML = `<div style="padding:4px 0 8px;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;font-weight:600;color:var(--fg)">⏱ 阶段耗时</span>${totalDurText}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;font-weight:600;color:var(--text)">⏱ 阶段耗时</span>${totalDurText}</div>
       ${data.phaseDurations.map(p=>{
         const pct=Math.max(5,Math.round((p.durationSec||1)/maxDur*100));
         const color=phaseColors[p.phase]||'#6b7280';
@@ -1572,8 +2608,8 @@ function renderLiveActivity(data){
     const s=data.todosSummary;
     todosBar.innerHTML=`<div style="padding:4px 0 8px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:600;color:var(--fg)">📊 执行进度</span>
-        <span style="font-size:20px;font-weight:700;color:${s.percent>=100?'#22c55e':s.percent>=50?'#60a5fa':'var(--fg)'}">${s.percent}%</span>
+        <span style="font-size:11px;font-weight:600;color:var(--text)">📊 执行进度</span>
+        <span style="font-size:20px;font-weight:700;color:${s.percent>=100?'#22c55e':s.percent>=50?'#60a5fa':'var(--text)'}">${s.percent}%</span>
         <span style="font-size:10px;color:var(--muted)">✅${s.completed} 🔄${s.inProgress} ⬜${s.notStarted} / 共${s.total}项</span>
       </div>
       <div style="height:8px;background:var(--panel);border-radius:4px;overflow:hidden;display:flex">
@@ -1596,7 +2632,7 @@ function renderLiveActivity(data){
     }
     if(parts.length){
       resBar.innerHTML=`<div style="padding:4px 0 8px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center">
-        <span style="font-size:11px;font-weight:600;color:var(--fg)">📈 资源消耗</span>
+        <span style="font-size:11px;font-weight:600;color:var(--text)">📈 资源消耗</span>
         ${parts.map(p=>`<span style="font-size:11px;color:var(--muted)">${p}</span>`).join('')}
       </div>`;
     }
@@ -1612,7 +2648,7 @@ function renderLiveActivity(data){
   if(dot){dot.classList.toggle('idle',!isActive);}
 
   // Agent label map
-  const _agentLabels={main:'班长',zhongshu:'学习委员',menxia:'班委主席',shangshu:'副班长',libu:'礼部',hubu:'户部',bingbu:'兵部',xingbu:'刑部',gongbu:'工部',libu_hr:'吏部',zaochao:'钦天监'};
+  const _agentLabels={main:'班长',monitor:'班长',vice_monitor:'副班长',chair:'班委主席',study:'学习委员',morning_reading:'早读委员',arts:'文艺委员',discipline:'纪律委员',finance:'生活委员',logistics:'后勤委员',organization:'组织委员',technical:'技术委员'};
 
   const renderEntry=(a)=>{
     const time=a.at?fmtActivityTime(a.at):'';
@@ -1787,7 +2823,7 @@ function renderSkills(cfg){
 /* skill detail modal — 写入 modal-body (复用已有 modal) */
 async function openSkill(agentId, skillName){
   document.getElementById('modal-body').innerHTML=`
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">${esc(agentId.toUpperCase())}</div>
+    <div style="font-size:11px;color:var(--primary);font-weight:700;letter-spacing:.04em;margin-bottom:4px">${esc(agentId.toUpperCase())}</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:16px">📦 ${esc(skillName)}</div>
     <div id="sk-modal-content" class="sk-modal-body"><div style="color:var(--muted);font-size:12px;padding:24px;text-align:center">⟳ 加载中…</div></div>`;
   document.getElementById('modal-bg').classList.add('open');
@@ -1844,7 +2880,7 @@ function simpleMarkdown(md){
 /* ══ ADD SKILL FORM (规范化表单) ══ */
 function openAddSkillForm(agentId, agentLabel){
   document.getElementById('modal-body').innerHTML=`
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">为 ${esc(agentLabel)} 添加技能</div>
+    <div style="font-size:11px;color:var(--primary);font-weight:700;letter-spacing:.04em;margin-bottom:4px">为 ${esc(agentLabel)} 添加技能</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:18px">＋ 新增 Skill</div>
     <div style="background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:18px;font-size:12px;line-height:1.7;color:var(--muted)">
       <b style="color:var(--text)">📋 Skill 规范说明</b><br>
@@ -1873,7 +2909,7 @@ function openAddSkillForm(agentId, agentLabel){
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
         <button type="button" class="btn btn-g" onclick="closeModal()" style="padding:8px 20px;font-size:13px">取消</button>
-        <button type="submit" id="ask-submit" class="btn" style="padding:8px 20px;font-size:13px;background:var(--acc);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">📦 创建技能</button>
+        <button type="submit" id="ask-submit" class="btn" style="padding:8px 20px;font-size:13px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">📦 创建技能</button>
       </div>
     </form>`;
   document.getElementById('modal-bg').classList.add('open');
@@ -2051,7 +3087,7 @@ function renderSessions(tasks){
       <div class="sc-title">${esc(title)}</div>
       ${msg?`<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px;border-left:2px solid var(--line);padding-left:8px;max-height:40px;overflow:hidden">${esc(msg)}</div>`:''}
       <div class="sc-meta">
-        ${modelStr?`<span style="font-size:10px;color:var(--acc);font-weight:600">${esc(modelStr)}</span>`:''}
+        ${modelStr?`<span style="font-size:10px;color:var(--primary);font-weight:600">${esc(modelStr)}</span>`:''}
         ${totalTk?`<span style="font-size:10px;color:var(--muted)">🪙 ${totalTk.toLocaleString()} tokens</span>`:''}
         ${updatedAt?`<span class="sc-time">${timeAgo(updatedAt)}</span>`:''}
       </div>
@@ -2074,19 +3110,19 @@ function openSessionDetail(jsonStr){
   const st = t.state||'Unknown';
 
   document.getElementById('modal-body').innerHTML=`
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">${esc(t.id)}</div>
+    <div style="font-size:11px;color:var(--primary);font-weight:700;letter-spacing:.04em;margin-bottom:4px">${esc(t.id)}</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:6px">${emoji} ${esc(title)}</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap">
       <span class="tag st-${st}">${STATE_LABEL[st]||st}</span>
       <span style="font-size:11px;color:var(--muted)">${ch.icon} ${ch.text}</span>
       <span style="font-size:11px;color:var(--muted)">${esc(agLabel)}</span>
-      ${model?`<span style="font-size:11px;color:var(--acc)">${esc(model[1])}</span>`:''}
+      ${model?`<span style="font-size:11px;color:var(--primary)">${esc(model[1])}</span>`:''}
       ${hb.label?`<span style="font-size:11px">${esc(hb.label)}</span>`:''}
     </div>
 
     <!-- 统计 -->
     <div style="display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap">
-      ${sm.totalTokens?`<div style="background:var(--panel2);padding:10px 16px;border-radius:8px;font-size:12px"><div style="font-size:16px;font-weight:700;color:var(--acc)">${sm.totalTokens.toLocaleString()}</div><div style="color:var(--muted);font-size:10px">总 Tokens</div></div>`:''}
+      ${sm.totalTokens?`<div style="background:var(--panel2);padding:10px 16px;border-radius:8px;font-size:12px"><div style="font-size:16px;font-weight:700;color:var(--primary)">${sm.totalTokens.toLocaleString()}</div><div style="color:var(--muted);font-size:10px">总 Tokens</div></div>`:''}
       ${sm.inputTokens!=null?`<div style="background:var(--panel2);padding:10px 16px;border-radius:8px;font-size:12px"><div style="font-size:16px;font-weight:700">${(sm.inputTokens||0).toLocaleString()}</div><div style="color:var(--muted);font-size:10px">输入</div></div>`:''}
       ${sm.outputTokens!=null?`<div style="background:var(--panel2);padding:10px 16px;border-radius:8px;font-size:12px"><div style="font-size:16px;font-weight:700">${(sm.outputTokens||0).toLocaleString()}</div><div style="color:var(--muted);font-size:10px">输出</div></div>`:''}
     </div>
@@ -2179,7 +3215,7 @@ function renderSubConfig(){
   (subConfig.categories||[]).forEach(c=>{ if(!allCats.includes(c.name)) allCats.push(c.name); });
   const enabledSet = new Set((subConfig.categories||[]).filter(c=>c.enabled).map(c=>c.name));
   catsEl.innerHTML = allCats.map(cat=>{
-    const meta=CAT_META[cat]||{icon:'📰',color:'var(--acc)',desc:cat};
+    const meta=CAT_META[cat]||{icon:'📰',color:'var(--primary)',desc:cat};
     const on=enabledSet.has(cat);
     return `<div class="sub-cat ${on?'active':''}" onclick="toggleCat('${esc(cat)}')">
       <div class="sc-check">${on?'✓':''}</div>
@@ -2272,7 +3308,7 @@ function removeFeed(i){
 async function saveSubConfig(){
   subConfig.feishu_webhook = document.getElementById('feishu-webhook').value.trim();
   const st = document.getElementById('sub-status');
-  st.style.display='block'; st.style.color='var(--acc)'; st.textContent='⟳ 保存中…';
+  st.style.display='block'; st.style.color='var(--primary)'; st.textContent='⟳ 保存中…';
   try{
     const r = await postJ(API+'/morning-config', subConfig);
     if(r.ok){ st.style.color='var(--ok)'; st.textContent='✅ 配置已保存'; toast('订阅配置已保存','ok'); }
@@ -2313,7 +3349,7 @@ function renderMorning(d){
   body.innerHTML = `<div class="mb-cats">
     ${Object.entries(cats).map(([cat, items])=>{
       if(enabledSet && !enabledSet.has(cat)) return '';
-      const meta = CAT_META[cat]||{icon:'📰',color:'var(--acc)'};
+      const meta = CAT_META[cat]||{icon:'📰',color:'var(--primary)'};
       // Boost items matching user keywords
       const scored = items.map(item=>{
         const text = ((item.title||'')+(item.summary||'')).toLowerCase();
@@ -2483,7 +3519,7 @@ function selectOfficial(id, el){
       <div class="od-emoji">${o.emoji}</div>
       <div>
         <div class="od-name">${esc(o.role)}</div>
-        <div class="od-role">${esc(o.label)} · <span style="color:var(--acc)">${esc(o.model_short||o.model)}</span></div>
+        <div class="od-role">${esc(o.label)} · <span style="color:var(--primary)">${esc(o.model_short||o.model)}</span></div>
         <div class="od-rank-badge">🏅 ${esc(o.rank)} · 功绩分 ${o.merit_score}</div>
       </div>
       <div class="od-hb">
@@ -2499,7 +3535,7 @@ function selectOfficial(id, el){
       <div class="od-stats">
         <div class="ods"><div class="ods-v" style="color:var(--ok)">${o.tasks_done}</div><div class="ods-l">完成任务</div></div>
         <div class="ods"><div class="ods-v" style="color:var(--warn)">${o.tasks_active}</div><div class="ods-l">执行中</div></div>
-        <div class="ods"><div class="ods-v" style="color:var(--acc)">${o.flow_participations}</div><div class="ods-l">流转参与</div></div>
+        <div class="ods"><div class="ods-v" style="color:var(--primary)">${o.flow_participations}</div><div class="ods-l">流转参与</div></div>
       </div>
     </div>
 
@@ -2576,8 +3612,8 @@ async function reviewAction(taskId, action){
   }catch(e){ toast('服务器连接失败','err'); }
 }
 
-/* ══ ADVANCE STATE (手动推进到下一步) ══ */
-const _NEXT_LABELS = {Taizi:'学习委员起草', Zhongshu:'班委主席审议', Menxia:'副班长派发', Assigned:'开始执行', Doing:'进入审查', Review:'完成'};
+/* ══ ADVANCE STATE (手动推进到下一步) - ClassBrainAI ══ */
+const _NEXT_LABELS = {Monitor:'学习委员规划', Study:'班委主席审议', Chair:'副班长派发', Assigned:'开始执行', Doing:'进入审查', Review:'完成', Technical:'进入审查', Organization:'进入审查'};
 async function advanceState(taskId, curState){
   const next = _NEXT_LABELS[curState] || '下一步';
   const comment = prompt(`⏩ 手动推进 ${taskId}\n当前: ${curState} → 下一步: ${next}\n\n请输入说明（可留空）：`);
@@ -2801,7 +3837,7 @@ function skipCeremony(){
   setTimeout(()=>{el.style.display='none'}, 500);
 }
 
-/* ══ MEMORIALS (奏折系统) ══ */
+/* ══ MEMORIALS (汇报记录系统) ══ */
 function renderMemorials(){
   const tasks = liveStatus ? (liveStatus.tasks||[]) : [];
   const filter = (document.getElementById('mem-filter')||{}).value || 'all';
@@ -2811,7 +3847,7 @@ function renderMemorials(){
   document.getElementById('tb-mem').textContent = mems.length;
 
   const el = document.getElementById('mem-list');
-  if(!mems.length){ el.innerHTML='<div class="mem-empty">暂无奏折 — 任务完成后自动生成</div>'; return; }
+  if(!mems.length){ el.innerHTML='<div class="mem-empty">暂无汇报记录 — 任务完成后自动生成</div>'; return; }
 
   el.innerHTML = mems.map(t=>{
     const fl = t.flow_log||[];
@@ -2820,7 +3856,7 @@ function renderMemorials(){
     const lastAt = fl.length ? (fl[fl.length-1].at||'').substring(0,16).replace('T',' ') : '';
     const stIcon = t.state==='Done'?'✅':'🚫';
     return `<div class="mem-card" onclick='openMemorial(${JSON.stringify(JSON.stringify(t))})'>
-      <div class="mem-icon">📜</div>
+      <div class="mem-icon">📝</div>
       <div class="mem-info">
         <div class="mem-title">${stIcon} ${esc(t.title||t.id)}</div>
         <div class="mem-sub">${esc(t.id)} · ${esc(t.org||'')} · 流转 ${fl.length} 步</div>
@@ -2871,7 +3907,7 @@ function openMemorial(jsonStr){
   };
 
   document.getElementById('modal-body').innerHTML=`
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">${esc(t.id)}</div>
+    <div style="font-size:11px;color:var(--primary);font-weight:700;letter-spacing:.04em;margin-bottom:4px">${esc(t.id)}</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:6px">${stIcon} ${esc(t.title||t.id)}</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap">
       <span class="tag st-${st}">${STATE_LABEL[st]||st}</span>
@@ -2882,11 +3918,11 @@ function openMemorial(jsonStr){
 
     ${t.now?`<div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:var(--muted)">${esc(t.now)}</div>`:''}
 
-    ${renderPhase('圣旨原文', '👑', originLog)}
-    ${renderPhase('中书规划', '📋', planLog)}
-    ${renderPhase('门下审议', '🔍', reviewLog)}
-    ${renderPhase('各班委执行', '⚔️', execLog)}
-    ${renderPhase('汇总汇报', '📨', resultLog)}
+    ${renderPhase('任务发布', '👨‍🏫', originLog)}
+    ${renderPhase('学习委员规划', '📋', planLog)}
+    ${renderPhase('班委主席审议', '🔍', reviewLog)}
+    ${renderPhase('各班委执行', '⚙️', execLog)}
+    ${renderPhase('完成汇报', '📨', resultLog)}
 
     ${t.output&&t.output!=='-'?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
       <div style="font-size:11px;font-weight:600;margin-bottom:4px">📦 产出物</div>
@@ -2894,7 +3930,7 @@ function openMemorial(jsonStr){
     </div>`:''}
 
     <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
-      <button class="btn btn-g" onclick="exportMemorial(${JSON.stringify(JSON.stringify(t.id))})" style="font-size:12px;padding:6px 16px">📋 复制奏折</button>
+      <button class="btn btn-g" onclick="exportMemorial(${JSON.stringify(JSON.stringify(t.id))})" style="font-size:12px;padding:6px 16px">📋 复制汇报</button>
     </div>
   `;
   document.getElementById('modal-bg').classList.add('open');
@@ -2906,10 +3942,10 @@ function exportMemorial(taskIdJson){
   const t = tasks.find(x=>x.id===taskId);
   if(!t){ toast('找不到任务','err'); return; }
   const fl = t.flow_log||[];
-  let md = `# 📜 奏折 · ${t.title}\n\n`;
+  let md = `# 📝 任务汇报 · ${t.title}\n\n`;
   md += `- **任务编号**: ${t.id}\n`;
   md += `- **状态**: ${t.state}\n`;
-  md += `- **负责部门**: ${t.org}\n`;
+  md += `- **负责班委**: ${t.org}\n`;
   // 时间信息
   if(fl.length){
     const startAt = fl[0].at ? fl[0].at.substring(0,19).replace('T',' ') : '未知';
@@ -2931,14 +3967,14 @@ function exportMemorial(taskIdJson){
     md += `- **${f.from}** → **${f.to}**  \n  ${f.remark}  \n  _${(f.at||'').substring(0,19)}_\n\n`;
   }
   if(t.output && t.output!=='-') md += `## 产出物\n\n\`${t.output}\`\n`;
-  navigator.clipboard.writeText(md).then(()=>toast('✅ 奏折已复制为 Markdown','ok')).catch(()=>toast('复制失败','err'));
+  navigator.clipboard.writeText(md).then(()=>toast('✅ 汇报已复制为 Markdown','ok')).catch(()=>toast('复制失败','err'));
 }
 
-/* ══ TEMPLATES (圣旨模板库) ══ */
+/* ══ TEMPLATES (任务模板库) - ClassBrainAI ══ */
 const TEMPLATES = [
   {id:'tpl-weekly-report', cat:'日常办公', icon:'📝', name:'周报生成',
-   desc:'基于本周看板数据和各部产出，自动生成结构化周报',
-   depts:['户部','礼部'], est:'~10分钟', cost:'¥0.5',
+   desc:'基于本周看板数据和各班委产出，自动生成结构化周报',
+   depts:['生活委员','文艺委员'], est:'~10分钟', cost:'¥0.5',
    params:[
      {key:'date_range', label:'报告周期', type:'text', default:'本周', required:true},
      {key:'focus', label:'重点关注（逗号分隔）', type:'text', default:'项目进展,下周计划'},
@@ -2947,7 +3983,7 @@ const TEMPLATES = [
    command:'生成{date_range}的周报，重点覆盖{focus}，输出为{format}格式'},
   {id:'tpl-code-review', cat:'工程开发', icon:'🔍', name:'代码审查',
    desc:'对指定代码仓库/文件进行质量审查，输出问题清单和改进建议',
-   depts:['兵部','刑部'], est:'~20分钟', cost:'¥2',
+   depts:['纪律委员','技术委员'], est:'~20分钟', cost:'¥2',
    params:[
      {key:'repo', label:'仓库/文件路径', type:'text', required:true},
      {key:'scope', label:'审查范围', type:'select', options:['全量','增量(最近commit)','指定文件'], default:'增量(最近commit)'},
@@ -2956,7 +3992,7 @@ const TEMPLATES = [
    command:'对 {repo} 进行代码审查，范围：{scope}，重点关注：{focus}'},
   {id:'tpl-api-design', cat:'工程开发', icon:'⚡', name:'API 设计与实现',
    desc:'从需求描述到 RESTful API 设计、实现、测试一条龙',
-   depts:['学习委员','兵部'], est:'~45分钟', cost:'¥3',
+   depts:['学习委员','纪律委员'], est:'~45分钟', cost:'¥3',
    params:[
      {key:'requirement', label:'需求描述', type:'textarea', required:true},
      {key:'tech', label:'技术栈', type:'select', options:['Python/FastAPI','Node/Express','Go/Gin'], default:'Python/FastAPI'},
@@ -2965,7 +4001,7 @@ const TEMPLATES = [
    command:'设计并实现一个 {tech} 的 RESTful API：{requirement}。鉴权方式：{auth}'},
   {id:'tpl-competitor', cat:'数据分析', icon:'📊', name:'竞品分析',
    desc:'爬取竞品网站数据，分析对比，生成结构化报告',
-   depts:['兵部','户部','礼部'], est:'~60分钟', cost:'¥5',
+   depts:['纪律委员','生活委员','文艺委员'], est:'~60分钟', cost:'¥5',
    params:[
      {key:'targets', label:'竞品名称/URL（每行一个）', type:'textarea', required:true},
      {key:'dimensions', label:'分析维度', type:'text', default:'产品功能,定价策略,用户评价'},
@@ -2974,7 +4010,7 @@ const TEMPLATES = [
    command:'对以下竞品进行分析：\n{targets}\n\n分析维度：{dimensions}，输出格式：{format}'},
   {id:'tpl-data-report', cat:'数据分析', icon:'📈', name:'数据报告',
    desc:'对给定数据集进行清洗、分析、可视化，输出分析报告',
-   depts:['户部','礼部'], est:'~30分钟', cost:'¥2',
+   depts:['生活委员','文艺委员'], est:'~30分钟', cost:'¥2',
    params:[
      {key:'data_source', label:'数据源描述/路径', type:'text', required:true},
      {key:'questions', label:'分析问题（每行一个）', type:'textarea'},
@@ -2983,7 +4019,7 @@ const TEMPLATES = [
    command:'对数据 {data_source} 进行分析。{questions}\n需要可视化：{viz}'},
   {id:'tpl-blog', cat:'内容创作', icon:'✍️', name:'博客文章',
    desc:'给定主题和要求，生成高质量博客文章',
-   depts:['礼部'], est:'~15分钟', cost:'¥1',
+   depts:['文艺委员'], est:'~15分钟', cost:'¥1',
    params:[
      {key:'topic', label:'文章主题', type:'text', required:true},
      {key:'audience', label:'目标读者', type:'text', default:'技术人员'},
@@ -2993,7 +4029,7 @@ const TEMPLATES = [
    command:'写一篇关于「{topic}」的博客文章，面向{audience}，{length}，风格：{style}'},
   {id:'tpl-deploy', cat:'工程开发', icon:'🚀', name:'部署方案',
    desc:'生成完整的部署检查单、Docker配置、CI/CD流程',
-   depts:['兵部','工部'], est:'~25分钟', cost:'¥2',
+   depts:['纪律委员','后勤委员'], est:'~25分钟', cost:'¥2',
    params:[
      {key:'project', label:'项目名称/描述', type:'text', required:true},
      {key:'env', label:'部署环境', type:'select', options:['Docker','K8s','VPS','Serverless'], default:'Docker'},
@@ -3002,7 +4038,7 @@ const TEMPLATES = [
    command:'为项目「{project}」生成{env}部署方案，CI/CD使用{ci}'},
   {id:'tpl-email', cat:'内容创作', icon:'📧', name:'邮件/通知文案',
    desc:'根据场景和目的，生成专业邮件或通知文案',
-   depts:['礼部'], est:'~5分钟', cost:'¥0.3',
+   depts:['文艺委员'], est:'~5分钟', cost:'¥0.3',
    params:[
      {key:'scenario', label:'使用场景', type:'select', options:['商务邮件','产品发布','客户通知','内部公告'], default:'商务邮件'},
      {key:'purpose', label:'目的/内容', type:'textarea', required:true},
@@ -3010,12 +4046,12 @@ const TEMPLATES = [
    ],
    command:'撰写一封{scenario}，{tone}语调。内容：{purpose}'},
   {id:'tpl-standup', cat:'日常办公', icon:'🗓️', name:'每日站会摘要',
-   desc:'汇总各部今日进展和明日计划，生成站会摘要',
+   desc:'汇总各班委今日进展和明日计划，生成站会摘要',
    depts:['副班长'], est:'~5分钟', cost:'¥0.3',
    params:[
      {key:'range', label:'汇总范围', type:'select', options:['今天','最近24小时','昨天+今天'], default:'今天'}
    ],
-   command:'汇总{range}各部工作进展和待办，生成站会摘要'}
+   command:'汇总{range}各班委工作进展和待办，生成站会摘要'}
 ];
 const TPL_CATS = [
   {name:'全部', icon:'📋'},
@@ -3055,7 +4091,7 @@ function openTemplateForm(tplId){
   const t = TEMPLATES.find(x=>x.id===tplId);
   if(!t) return;
   document.getElementById('modal-body').innerHTML=`
-    <div style="font-size:11px;color:var(--acc);font-weight:700;letter-spacing:.04em;margin-bottom:4px">圣旨模板</div>
+    <div style="font-size:11px;color:var(--primary);font-weight:700;letter-spacing:.04em;margin-bottom:4px">任务模板</div>
     <div style="font-size:20px;font-weight:800;margin-bottom:6px">${t.icon} ${esc(t.name)}</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:18px">${esc(t.desc)}</div>
     <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">${t.depts.map(d=>`<span class="tpl-dept">${esc(d)}</span>`).join('')}<span style="font-size:11px;color:var(--muted);margin-left:auto">${esc(t.est)} · ${esc(t.cost)}</span></div>

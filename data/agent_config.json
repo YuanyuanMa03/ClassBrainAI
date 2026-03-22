@@ -1,0 +1,161 @@
+{
+  "generatedAt": "2026-03-22 21:42:00",
+  "defaultModel": "zai/glm-4.7",
+  "knownModels": [
+    {
+      "id": "zai/glm-5",
+      "label": "GLM-5",
+      "provider": "ZAI"
+    },
+    {
+      "id": "zai/glm-4.7",
+      "label": "GLM-4.7",
+      "provider": "ZAI"
+    }
+  ],
+  "agents": [
+    {
+      "id": "classbrain-monitor",
+      "label": "班主任",
+      "role": "班主任",
+      "duty": "班级管理总协调",
+      "emoji": "🤴",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-monitor",
+      "skills": [],
+      "allowAgents": ["classbrain-study"]
+    },
+    {
+      "id": "classbrain-study",
+      "label": "学习委员",
+      "role": "学习委员",
+      "duty": "学习任务规划与执行",
+      "emoji": "📜",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-study",
+      "skills": [],
+      "allowAgents": ["classbrain-chair", "classbrain-vice"]
+    },
+    {
+      "id": "classbrain-chair",
+      "label": "班长",
+      "role": "班长",
+      "duty": "消息分拣与任务传达",
+      "emoji": "🔍",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-chair",
+      "skills": [],
+      "allowAgents": ["classbrain-vice", "classbrain-study"]
+    },
+    {
+      "id": "classbrain-vice",
+      "label": "副班长",
+      "role": "副班长",
+      "duty": "任务协调与统筹执行",
+      "emoji": "👤",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-vice",
+      "skills": [],
+      "allowAgents": ["classbrain-study", "classbrain-chair", "classbrain-technical", "classbrain-logistics", "classbrain-finance", "classbrain-arts", "classbrain-discipline", "classbrain-organization", "classbrain-morning"]
+    },
+    {
+      "id": "classbrain-technical",
+      "label": "技术委员",
+      "role": "技术委员",
+      "duty": "技术方案与开发",
+      "emoji": "💻",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-technical",
+      "skills": [],
+      "allowAgents": ["classbrain-vice"]
+    },
+    {
+      "id": "classbrain-logistics",
+      "label": "后勤委员",
+      "role": "后勤委员",
+      "duty": "后勤保障与物资管理",
+      "emoji": "📦",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-logistics",
+      "skills": [],
+      "allowAgents": ["classbrain-vice"]
+    },
+    {
+      "id": "classbrain-finance",
+      "label": "生活委员",
+      "role": "生活委员",
+      "duty": "财务管理与生活事务",
+      "emoji": "💰",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-finance",
+      "skills": [],
+      "allowAgents": ["classbrain-vice"]
+    },
+    {
+      "id": "classbrain-arts",
+      "label": "文体委员",
+      "role": "文体委员",
+      "duty": "文体活动策划与执行",
+      "emoji": "🎨",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-arts",
+      "skills": [],
+      "allowAgents": ["classbrain-vice"]
+    },
+    {
+      "id": "classbrain-discipline",
+      "label": "纪律委员",
+      "role": "纪律委员",
+      "duty": "纪律维护与规范管理",
+      "emoji": "⚖️",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-discipline",
+      "skills": [],
+      "allowAgents": ["classbrain-vice"]
+    },
+    {
+      "id": "classbrain-organization",
+      "label": "组织委员",
+      "role": "组织委员",
+      "duty": "组织协调与团队建设",
+      "emoji": "👥",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-organization",
+      "skills": [],
+      "allowAgents": ["classbrain-vice"]
+    },
+    {
+      "id": "classbrain-morning",
+      "label": "早读委员",
+      "role": "早读委员",
+      "duty": "早读任务管理",
+      "emoji": "🌅",
+      "model": "zai/glm-4.7",
+      "defaultModel": "zai/glm-4.7",
+      "isDefaultModel": true,
+      "workspace": "/Users/mayuanyuan/.openclaw/workspace-classbrain-morning",
+      "skills": [],
+      "allowAgents": []
+    }
+  ]
+}
