@@ -19,8 +19,8 @@
      "generatedAt": "HH:MM",
      "categories": [
        {
-         "key": "politics",
-         "label": "🏛️ 政治",
+         "key": "tech",
+         "label": "💻 技术",
          "items": [
            {
              "title": "标题（中文）",
@@ -56,5 +56,5 @@
 > 如果是任务触发的简报生成，必须用 `progress` 命令上报进展。
 
 ```bash
-python3 scripts/kanban_update.py progress JJC-xxx "正在采集全球新闻，已完成政治/军事类" "政治新闻采集✅|军事新闻采集✅|经济新闻采集🔄|AI新闻采集|生成简报"
+python3 scripts/kanban_update.py progress CB-xxx "正在采集技术学习资料，已完成技术/AI类" "技术新闻采集✅|AI新闻采集✅|开源项目采集🔄|学习资源采集|生成简报"
 ```
