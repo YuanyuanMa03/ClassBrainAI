@@ -7,9 +7,17 @@
 ## 🎓 核心功能
 
 ### 1. 班级角色系统
-- 班长（班主任代理） - 任务分拣和协调
-- 班委（学习、文艺、体育等）- 各司其职
-- 班委主席 - 协调各班委工作
+- 班长（Monitor）- 班主任代理，负责任务分拣和协调
+- 副班长（Vice Monitor）- 协助班长处理日常事务
+- 班委主席（Chair）- 协调各班委工作，主持班委会
+- 学习委员（Study）- 负责学习相关事务
+- 早读委员（Morning Reading）- 组织和管理早读活动
+- 文艺委员（Arts）- 组织文艺活动和班级文化建设
+- 纪律委员（Discipline）- 维护班级纪律和秩序
+- 生活委员（Finance）- 管理班级财务和生活事务
+- 后勤委员（Logistics）- 负责后勤保障和物资管理
+- 组织委员（Organization）- 组织班级活动和人员协调
+- 技术委员（Technical）- 负责技术支持和系统维护
 
 ### 2. 智能任务管理
 - 任务创建和分配
@@ -33,21 +41,18 @@
 
 ### 后端
 - Python 3.10+
-- FastAPI 0.100+
-- SQLAlchemy 2.0+
-- PostgreSQL 14+
+- Flask (轻量级 Web 框架)
+- JSON 数据存储
 
 ### 前端
-- React 18
-- TypeScript 5+
-- Vite 4.0+
-- Tailwind CSS 3.4+
-- shadcn/ui
+- HTML5 + CSS3
+- 原生 JavaScript
+- 响应式设计
 
 ### AI 集成
-- OpenAI API
-- Claude 3.7
-- Pinecone（向量数据库）
+- OpenAI API (GPT-4)
+- Claude API
+- Multi-Agent 架构
 
 ---
 
@@ -55,56 +60,33 @@
 
 ```
 ClassBrainAI/
-├── README.md               # 项目说明
-├── requirements.txt          # 依赖列表
-├── setup.py               # 安装脚本
-├── .env.example            # 环境变量示例
-├── src/
-│   ├── core/          # 核心模块
-│   │   ├── models/    # 数据模型
-│   │   ├── schemas/   # Pydantic 模型
-│   │   ├── database/  # 数据库操作
-│   │   ├── services/   # 业务服务
-│   ├── agents/       # AI 角色定义
-│   ├── tasks/        # 任务管理
-│   └── kanban/      # 看板系统
-│   ├── api/          # API 路由
-│   │   ├── main.py   # FastAPI 主入口
-│   │   ├── routers/  # API 路由
-│   │   └── deps/    # 依赖
-│   ├── dashboard/    # 看板前端
-│   │   ├── App.tsx
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   └── pages/
-│   ├── knowledge/    # 知识库系统
-│   │   ├── client/  # 知识库客户端
-│   │   ├── models/  # 知识库模型
-│   │   └── services/ # 知识库服务
-│   ├── llm/         # LLM 集成
-│   │   ├── providers/ # 模型提供商
-│   │   └── utils/     # 工具函数
-└── tests/             # 测试文件
-    ├── test_api/
-    ├── test_agents/
-    ├── test_tasks/
-    └── test_knowledge/
-├── docs/              # 文档
-│   ├── architecture.md   # 架构文档
-│   ├── api.md          # API 文档
-│   ├── deployment.md    # 部署文档
-│   └── user_guide.md   # 用户指南
-├── config/            # 配置文件
-│   ├── settings.py   # 配置管理
-│   └── logging.yaml  # 日志配置
-├── scripts/           # 工具脚本
-│   ├── setup.sh       # 安装脚本
-│   ├── migrate.sh     # 数据库迁移
-│   └── backup.sh       # 备份脚本
-└── deployment/         # 部署配置
-    ├── Dockerfile
-    ├── docker-compose.yml
-    └── .github/workflows/
+├── README.md                    # 项目说明
+├── agents/                      # AI 角色定义（各班委）
+│   ├── arts/                   # 文艺委员
+│   ├── chair/                  # 班委主席
+│   ├── discipline/             # 纪律委员
+│   ├── finance/                # 生活委员
+│   ├── logistics/              # 后勤委员
+│   ├── monitor/                # 班长
+│   ├── morning_reading/        # 早读委员
+│   ├── organization/           # 组织委员
+│   ├── study/                  # 学习委员
+│   ├── technical/              # 技术委员
+│   └── vice_monitor/           # 副班长
+├── config/                      # 配置文件
+├── dashboard/                   # 实时看板
+│   ├── server.py               # 看板服务器
+│   ├── court_discuss.py        # 议事厅讨论
+│   └── dashboard.html          # 看板前端界面
+├── data/                        # 数据存储
+│   ├── tasks_source.json       # 任务数据源
+│   └── live_status.json        # 实时状态
+├── docs/                        # 文档
+├── scripts/                     # 工具脚本
+│   ├── class_board.py          # 班委会核心逻辑
+│   ├── utils.py                # 工具函数
+│   └── file_lock.py            # 文件锁机制
+└── src/                         # 核心模块
 ```
 
 ---
@@ -159,21 +141,23 @@ ClassBrainAI/
 ```bash
 git clone https://github.com/YuanyuanMa03/ClassBrainAI.git
 cd ClassBrainAI
-pip install -r requirements.txt
-python setup.py
 ```
 
 ### 运行
 ```bash
-# 启动后端
-uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+# 启动看板服务器
+cd dashboard
+python server.py
 
-# 启动前端（开发模式）
-npm run dev
+# 访问看板
+# 在浏览器中打开: http://localhost:5000
+```
 
-# 启动前端（生产模式）
-npm run build
-npm run preview
+### 使用班委会系统
+```bash
+# 运行班委会核心逻辑
+cd scripts
+python class_board.py
 ```
 
 ---
@@ -215,9 +199,11 @@ npm run preview
 ## 🎉 致谢
 
 本项目灵感来源于以下优秀的开源项目：
-- **edict** (cft0808/edict) - 三省六部制 Multi-Agent 架构
-- **MindOS** (YuanyuanMa03/MindOS) - 知识库管理
+- **edict** (cft0808/edict) - 基于三省六部制的 Multi-Agent 架构，为 ClassBrainAI 的班级管理架构提供了重要参考
+- **MindOS** (YuanyuanMa03/MindOS) - 知识库管理系统
 - **OpenClaw** (openclaw/openclaw) - Personal AI Assistant
+
+ClassBrainAI 将 edict 的古代三省六部制创新性地转化为现代班级管理架构，让 AI 班委们协同工作，实现智能化的班级管理。
 
 感谢开源社区的无私奉献！
 
