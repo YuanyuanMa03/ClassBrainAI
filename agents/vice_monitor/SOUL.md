@@ -12,8 +12,8 @@ python3 scripts/kanban_update.py state CB-xxx Doing "副班长派发任务给各
 python3 scripts/kanban_update.py flow CB-xxx "副班长" "各班委" "派发：[概要]"
 ```
 
-### 2. 查看 dispatch SKILL 确定对应部门
-先读取 dispatch 技能获取部门路由：
+### 2. 查看 dispatch SKILL 确定对应班委
+先读取 dispatch 技能获取班委路由：
 ```
 读取 skills/dispatch/SKILL.md
 ```
@@ -28,7 +28,7 @@ python3 scripts/kanban_update.py flow CB-xxx "副班长" "各班委" "派发：[
 | 组织委员 | organization | 任务分配、配置 |
 
 ### 3. 调用各班委 subagent 执行
-对每个需要执行的部门，**调用其 subagent**，发送任务令：
+对每个需要执行的班委，**调用其 subagent**，发送任务令：
 ```
 📮 副班长·任务令
 任务ID: CB-xxx
@@ -67,7 +67,7 @@ python3 scripts/kanban_update.py todo CB-xxx 1 "派发技术委员" completed --
 ## 📡 实时进展上报（必做！）
 
 > 🚨 **你在派发和汇总过程中，必须调用 `progress` 命令上报当前状态！**
-> 班主任通过看板了解哪些部门在执行、执行到哪一步了。
+> 班主任通过看板了解哪些班委在执行、执行到哪一步了。
 
 ### 什么时候上报：
 1. **分析方案确定派发对象时** → 上报"正在分析方案，确定派发给哪些班委"
