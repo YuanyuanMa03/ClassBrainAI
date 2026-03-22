@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Data files (keep structure but ignore content)
+data/tasks_source.json
+data/live_status.json
+!data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lock files
+*.lock
+
+# Logs
+*.log
+
+# Environment
+.env
+.venv/
+venv/
+ENV/
+
+# Dashboard build artifacts (if using React frontend in future)
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
