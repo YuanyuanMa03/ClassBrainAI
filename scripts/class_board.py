@@ -11,13 +11,13 @@
 
 用法:
   # 新建任务（收旨时）
-  python3 kanban_update.py create JJC-20260223-012 "任务标题" Zhongshu 中书省 中书令
+  python3 kanban_update.py create JJC-20260223-012 "任务标题" Zhongshu 学习委员 中书令
 
   # 更新状态
-  python3 kanban_update.py state JJC-20260223-012 Menxia "规划方案已提交门下省"
+  python3 kanban_update.py state JJC-20260223-012 Menxia "规划方案已提交班委主席"
 
   # 添加流转记录
-  python3 kanban_update.py flow JJC-20260223-012 "中书省" "门下省" "规划方案提交审核"
+  python3 kanban_update.py flow JJC-20260223-012 "学习委员" "班委主席" "规划方案提交审核"
 
   # 完成任务
   python3 kanban_update.py done JJC-20260223-012 "/path/to/output" "任务完成摘要"
@@ -43,8 +43,8 @@ from file_lock import atomic_json_read, atomic_json_update  # noqa: E402
 from utils import now_iso  # noqa: E402
 
 STATE_ORG_MAP = {
-    'Taizi': '太子', 'Zhongshu': '中书省', 'Menxia': '门下省', 'Assigned': '尚书省',
-    'Doing': '执行中', 'Review': '尚书省', 'Done': '完成', 'Blocked': '阻塞',
+    'Taizi': '班长', 'Zhongshu': '学习委员', 'Menxia': '班委主席', 'Assigned': '副班长',
+    'Doing': '执行中', 'Review': '副班长', 'Done': '完成', 'Blocked': '阻塞',
 }
 
 _STATE_AGENT_MAP = {
@@ -59,12 +59,12 @@ _STATE_AGENT_MAP = {
 _ORG_AGENT_MAP = {
     '礼部': 'libu', '户部': 'hubu', '兵部': 'bingbu',
     '刑部': 'xingbu', '工部': 'gongbu', '吏部': 'libu_hr',
-    '中书省': 'zhongshu', '门下省': 'menxia', '尚书省': 'shangshu',
+    '学习委员': 'zhongshu', '班委主席': 'menxia', '副班长': 'shangshu',
 }
 
 _AGENT_LABELS = {
-    'main': '太子', 'taizi': '太子',
-    'zhongshu': '中书省', 'menxia': '门下省', 'shangshu': '尚书省',
+    'main': '班长', 'taizi': '班长',
+    'zhongshu': '学习委员', 'menxia': '班委主席', 'shangshu': '副班长',
     'libu': '礼部', 'hubu': '户部', 'bingbu': '兵部', 'xingbu': '刑部',
     'gongbu': '工部', 'libu_hr': '吏部', 'zaochao': '钦天监',
 }
@@ -86,7 +86,7 @@ def find_task(tasks, task_id):
     return next((t for t in tasks if t.get('id') == task_id), None)
 
 
-# 旨意标题最低要求
+# 任务标题最低要求
 _MIN_TITLE_LEN = 6
 _JUNK_TITLES = {
     '?', '？', '好', '好的', '是', '否', '不', '不是', '对', '了解', '收到',
@@ -156,12 +156,12 @@ def _infer_agent_id_from_runtime(task=None):
 
 
 def _is_valid_task_title(title):
-    """校验标题是否足够作为一个旨意任务。"""
+    """校验标题是否足够作为一个任务任务。"""
     t = (title or '').strip()
     if len(t) < _MIN_TITLE_LEN:
-        return False, f'标题过短（{len(t)}<{_MIN_TITLE_LEN}字），疑似非旨意'
+        return False, f'标题过短（{len(t)}<{_MIN_TITLE_LEN}字），疑似非任务'
     if t.lower() in _JUNK_TITLES:
-        return False, f'标题 "{t}" 不是有效旨意'
+        return False, f'标题 "{t}" 不是有效任务'
     # 纯标点或问号
     if re.fullmatch(r'[\s?？!！.。,，…·\-—~]+', t):
         return False, '标题只有标点符号'
@@ -178,7 +178,7 @@ def cmd_create(task_id, title, state, org, official, remark=None):
     """新建任务（收旨时立即调用）"""
     # 清洗标题（剥离元数据）
     title = _sanitize_title(title)
-    # 旨意标题校验
+    # 任务标题校验
     valid, reason = _is_valid_task_title(title)
     if not valid:
         log.warning(f'⚠️ 拒绝创建 {task_id}：{reason}')
@@ -200,7 +200,7 @@ def cmd_create(task_id, title, state, org, official, remark=None):
             "org": actual_org, "state": state,
             "now": clean_remark[:60] if remark else f"已下旨，等待{actual_org}接旨",
             "eta": "-", "block": "无", "output": "", "ac": "",
-            "flow_log": [{"at": now_iso(), "from": "皇上", "to": actual_org, "remark": clean_remark}],
+            "flow_log": [{"at": now_iso(), "from": "班主任", "to": actual_org, "remark": clean_remark}],
             "updatedAt": now_iso()
         })
         return tasks
@@ -303,7 +303,7 @@ def cmd_done(task_id, output_path='', summary=''):
         t['now'] = summary or '任务已完成'
         t.setdefault('flow_log', []).append({
             "at": now_iso(), "from": t.get('org', '执行部门'),
-            "to": "皇上", "remark": f"✅ 完成：{summary or '任务已完成'}"
+            "to": "班主任", "remark": f"✅ 完成：{summary or '任务已完成'}"
         })
         t['updatedAt'] = now_iso()
         return tasks
