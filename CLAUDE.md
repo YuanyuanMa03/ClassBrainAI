@@ -98,7 +98,7 @@ See `_VALID_TRANSITIONS` in `scripts/class_board.py` for the complete rules.
 
 ### Dashboard
 - `dashboard/server.py` - HTTP server serving dashboard and API endpoints
-- `dashboard/court_discuss.py` - Discussion session management
+- `dashboard/classroom_discuss.py` - Discussion session management
 - `dashboard/dashboard.html` - Single-file frontend with campus-style UI
 
 ### Agent Definitions
@@ -118,13 +118,13 @@ See `_VALID_TRANSITIONS` in `scripts/class_board.py` for the complete rules.
 ### Terminology Mapping from edict
 | edict | ClassBrainAI |
 |-------|--------------|
-| 皇上 | 班主任 |
+| 班主任 | 班主任 |
 | 太子 | 班长 |
-| 中书省 | 学习委员 |
-| 门下省 | 班委主席 |
-| 尚书省 | 副班长 |
+| 学习委员组 | 学习委员 |
+| 班委主席组 | 班委主席 |
+| 副班长组 | 副班长 |
 | 六部 | 各班委 |
-| 旨意 | 任务 |
+| 任务 | 任务 |
 | 回奏 | 汇报 |
 
 ### File Lock Usage

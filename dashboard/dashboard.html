@@ -5,45 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>ClassBrainAI - 智能班级管理系统</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+KuaiLe&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=IBM+Plex+Sans:wght@500;600;700&display=swap');
     :root{
-      /* 🎓 明亮温暖的校园配色方案 */
-      --bg:#F8FAFC;
-      --bg-pattern:#F0F4F8;
+      --bg:#F4F7FB;
+      --bg-pattern:#E2E8F0;
       --panel:#FFFFFF;
-      --panel2:#F1F5F9;
-      --line:#E2E8F0;
-      --text:#1E293B;
-      --text-light:#64748B;
-      --muted:#94A3B8;
+      --panel2:#F8FAFC;
+      --line:#D8E0EA;
+      --text:#1F2937;
+      --text-light:#475569;
+      --muted:#64748B;
 
-      /* 校园主题色 */
-      --primary:#0EA5E9;
-      --primary-light:#7DD3FC;
-      --secondary:#10B981;
-      --secondary-light:#6EE7B7;
-      --accent:#F59E0B;
-      --accent-light:#FCD34D;
+      --primary:#2563EB;
+      --primary-light:#3B82F6;
+      --secondary:#0F766E;
+      --secondary-light:#14B8A6;
+      --accent:#0EA5E9;
+      --accent-light:#38BDF8;
 
-      /* 状态色 */
       --ok:#10B981;
       --warn:#F59E0B;
       --danger:#EF4444;
-      --info:#3B82F6;
+      --info:#2563EB;
 
-      /* 阴影 */
-      --shadow-sm:0 1px 2px 0 rgba(0,0,0,.05);
-      --shadow-md:0 4px 6px -1px rgba(0,0,0,.1);
-      --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);
-      --shadow-xl:0 20px 25px -5px rgba(0,0,0,.1);
+      --shadow-sm:0 2px 8px rgba(15,23,42,.06);
+      --shadow-md:0 10px 30px rgba(15,23,42,.08);
+      --shadow-lg:0 18px 44px rgba(15,23,42,.12);
+      --shadow-xl:0 30px 70px rgba(15,23,42,.14);
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
 
     body{
-      background:linear-gradient(135deg,#F8FAFC 0%,#F0F4F8 100%);
+      background:
+        radial-gradient(circle at 12% 14%, rgba(59,130,246,.06), transparent 40%),
+        radial-gradient(circle at 86% 8%, rgba(20,184,166,.06), transparent 45%),
+        linear-gradient(180deg,#F4F7FB 0%,#EEF3F8 100%);
       color:var(--text);
-      font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
       min-height:100vh;
       position:relative;
     }
@@ -66,7 +65,7 @@
     ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}
     ::-webkit-scrollbar-thumb:hover{background:#94A3B8}
 
-    .wrap{max-width:1440px;margin:0 auto;padding:20px;position:relative;z-index:1}
+    .wrap{max-width:1500px;margin:0 auto;padding:24px 20px 30px;position:relative;z-index:1}
 
     /* ══ HEADER ══ */
     .hdr{
@@ -75,10 +74,10 @@
       justify-content:space-between;
       flex-wrap:wrap;
       gap:12px;
-      margin-bottom:24px;
-      padding:20px 24px;
+      margin-bottom:18px;
+      padding:22px 26px;
       background:var(--panel);
-      border-radius:16px;
+      border-radius:24px;
       box-shadow:var(--shadow-md);
       border:1px solid var(--line);
       position:relative;
@@ -92,24 +91,26 @@
       top:0;
       left:0;
       right:0;
-      height:4px;
-      background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent));
+      height:6px;
+      background:linear-gradient(90deg,var(--secondary),var(--accent),var(--primary-light));
     }
 
     .logo{
-      font-family:"ZCOOL KuaiLe",cursive;
-      font-size:26px;
-      font-weight:900;
-      background:linear-gradient(135deg,var(--primary),var(--secondary));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      letter-spacing:1px;
+      font-family:"IBM Plex Sans","Noto Sans SC",sans-serif;
+      font-size:34px;
+      line-height:1;
+      font-weight:800;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      color:#0F172A;
     }
 
     .sub{
-      font-size:13px;
+      font-size:12px;
       color:var(--muted);
-      font-weight:500;
+      font-weight:600;
+      letter-spacing:.04em;
+      text-transform:uppercase;
     }
 
     .hdr-r{
@@ -120,14 +121,15 @@
     }
 
     .chip{
-      font-size:12px;
-      padding:6px 14px;
-      border-radius:20px;
-      background:var(--bg-pattern);
+      font-size:11px;
+      padding:7px 14px;
+      border-radius:999px;
+      background:#FFF8E8;
       color:var(--text-light);
-      font-weight:500;
+      font-weight:700;
       border:1px solid var(--line);
       transition:all .2s;
+      letter-spacing:.03em;
     }
 
     .chip.ok{
@@ -149,19 +151,21 @@
     }
 
     .btn-refresh{
-      font-size:12px;
-      padding:8px 16px;
-      border-radius:10px;
-      border:1px solid var(--primary);
+      font-size:11px;
+      padding:9px 16px;
+      border-radius:999px;
+      border:1px solid transparent;
       background:var(--primary);
       color:#fff;
-      font-weight:600;
+      font-weight:700;
       cursor:pointer;
       transition:all .2s;
+      letter-spacing:.04em;
+      text-transform:uppercase;
     }
 
     .btn-refresh:hover{
-      background:#0284C7;
+      background:#1D4ED8;
       transform:translateY(-1px);
       box-shadow:var(--shadow-md);
     }
@@ -169,20 +173,20 @@
     /* ══ TABS ══ */
     .tabs{
       display:flex;
-      gap:6px;
-      margin-bottom:20px;
+      gap:8px;
+      margin-bottom:16px;
       background:var(--panel);
-      padding:8px;
-      border-radius:14px;
+      padding:10px;
+      border-radius:18px;
       box-shadow:var(--shadow-sm);
       border:1px solid var(--line);
       overflow-x:auto
     }
 
     .tab{
-      font-size:14px;
-      padding:10px 18px;
-      border-radius:10px;
+      font-size:13px;
+      padding:10px 16px;
+      border-radius:12px;
       cursor:pointer;
       color:var(--text-light);
       background:transparent;
@@ -190,19 +194,19 @@
       white-space:nowrap;
       transition:all .2s;
       user-select:none;
-      font-weight:500;
+      font-weight:700;
       position:relative
     }
 
     .tab:hover{
       color:var(--text);
-      background:var(--bg-pattern)
+      background:#F2EAD8
     }
 
     .tab.active{
-      color:var(--primary);
-      background:#E0F2FE;
-      border-color:var(--primary-light);
+      color:#fff;
+      background:var(--primary);
+      border-color:transparent;
       font-weight:700
     }
 
@@ -210,10 +214,133 @@
       font-size:11px;
       padding:2px 8px;
       border-radius:12px;
-      background:var(--primary);
-      color:#fff;
+      background:rgba(255,255,255,.25);
+      color:inherit;
       margin-left:6px;
       font-weight:700
+    }
+
+    /* ══ COMMAND DECK ══ */
+    .command-deck{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .cmd-hero,.cmd-actions{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow-sm);
+    }
+    .cmd-hero{
+      padding:16px 18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .cmd-hero::after{
+      content:"";
+      position:absolute;
+      right:-80px;top:-60px;
+      width:220px;height:220px;border-radius:50%;
+      background:radial-gradient(circle, rgba(10,147,150,.16), rgba(10,147,150,0));
+      pointer-events:none;
+    }
+    .cmd-kicker{
+      font-size:10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+      font-weight:700;
+    }
+    .cmd-title{
+      font-family:"IBM Plex Sans","Noto Sans SC",sans-serif;
+      font-size:34px;
+      line-height:1;
+      letter-spacing:.03em;
+      color:var(--text);
+      margin-bottom:8px;
+    }
+    .cmd-sub{
+      font-size:13px;
+      color:var(--text-light);
+      line-height:1.6;
+      max-width:88%;
+    }
+    .cmd-ticker{
+      margin-top:12px;
+      font-size:12px;
+      background:linear-gradient(90deg,#F4E7C9,#F6EDDC);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px 10px;
+      color:#6A4C27;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      animation:cmdPulse 2.8s ease-in-out infinite;
+    }
+    @keyframes cmdPulse{0%,100%{filter:saturate(1)}50%{filter:saturate(1.2)}}
+    .cmd-actions{
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .cmd-actions .line{
+      font-size:10px;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .cmd-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .cmd-btn{
+      border:1px solid #CDBA9D;
+      border-radius:12px;
+      background:#FFF8E8;
+      color:var(--text);
+      cursor:pointer;
+      padding:10px 10px;
+      font-size:12px;
+      font-weight:700;
+      text-align:left;
+      transition:all .12s;
+    }
+    .cmd-btn small{
+      display:block;
+      margin-top:2px;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:600;
+    }
+    .cmd-btn:hover{
+      border-color:var(--primary);
+      transform:translateY(-1px);
+      box-shadow:var(--shadow-sm);
+    }
+    .cmd-btn.primary{
+      background:linear-gradient(135deg,var(--primary),var(--primary-light));
+      border-color:transparent;
+      color:#fff;
+    }
+    .cmd-btn.primary small{color:#E6FFFA}
+    .cmd-protocol{
+      margin-top:2px;
+      border-top:1px dashed var(--line);
+      padding-top:8px;
+      font-size:11px;
+      color:var(--text-light);
+      line-height:1.5;
+    }
+    @media(max-width:980px){
+      .command-deck{grid-template-columns:1fr}
+      .cmd-sub{max-width:100%}
     }
 
     .panel{
@@ -221,48 +348,131 @@
     }
 
     .panel.active{
-      display:block
+      display:block;
+      animation:panelIn .22s ease;
     }
+    @keyframes panelIn{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
 
     /* ══ 任务看板 ══ */
+    .classroom-podium{
+      margin-bottom:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:linear-gradient(135deg,#F2E5C8,#EED8B5);
+      color:#69481D;
+      padding:10px 14px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.03em;
+    }
+
     .edict-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
-      gap:16px
+      grid-template-columns:repeat(6,minmax(0,1fr));
+      gap:16px 14px;
+      align-items:stretch;
     }
+    @media(max-width:1280px){ .edict-grid{grid-template-columns:repeat(4,minmax(0,1fr));} }
+    @media(max-width:900px){ .edict-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+    @media(max-width:560px){ .edict-grid{grid-template-columns:1fr;} }
 
     .edict-card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:20px;
+      background:linear-gradient(180deg,#FFFFFF,#F4F8FF);
+      border:1px solid #CDE0FA;
+      border-radius:30px;
+      padding:14px 12px 12px;
       cursor:pointer;
-      transition:all .25s cubic-bezier(.4,0,.2,1);
+      transition:all .15s ease;
       position:relative;
-      overflow:hidden;
+      box-shadow:var(--shadow-sm);
     }
-
     .edict-card::before{
       content:"";
       position:absolute;
-      top:0;
-      left:0;
-      right:0;
-      height:3px;
-      background:linear-gradient(90deg,var(--primary),var(--secondary));
-      opacity:0;
-      transition:opacity .2s;
+      width:30px;height:10px;
+      border-radius:999px;
+      top:-6px;left:50%;
+      transform:translateX(-50%);
+      background:#BFD5F6;
+      border:1px solid #AAC7F0;
     }
-
-    .edict-card:hover::before{
-      opacity:1;
+    .edict-card::after{
+      content:"";
+      position:absolute;
+      left:14px;right:14px;bottom:-9px;
+      height:8px;
+      border:1px solid #B5CDEE;
+      border-top:none;
+      border-radius:0 0 999px 999px;
+      background:#D6E5FA;
+      opacity:.8;
     }
-
+    .edict-card:nth-child(6n+4),
+    .edict-card:nth-child(6n+5),
+    .edict-card:nth-child(6n+6){
+      transform:translateX(12px);
+    }
+    @media(max-width:1280px){
+      .edict-card:nth-child(4n+3),
+      .edict-card:nth-child(4n+4){transform:translateX(10px);}
+    }
+    @media(max-width:900px){
+      .edict-card:nth-child(2n){transform:translateX(8px);}
+    }
+    @media(max-width:560px){
+      .edict-card:nth-child(n){transform:none;}
+    }
     .edict-card:hover{
       border-color:var(--primary-light);
-      transform:translateY(-4px);
-      box-shadow:var(--shadow-lg)
+      filter:brightness(1.01);
+      box-shadow:var(--shadow-md)
     }
+    .seat-no{
+      font-size:10px;
+      color:#1E40AF;
+      font-weight:800;
+      letter-spacing:.08em;
+      margin-bottom:4px;
+      text-transform:uppercase;
+    }
+    .seat-title{
+      font-size:13px;
+      font-weight:700;
+      line-height:1.35;
+      min-height:36px;
+      margin-bottom:6px;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    }
+    .seat-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:5px;
+      margin-bottom:6px;
+    }
+    .seat-now{
+      font-size:11px;
+      color:var(--text-light);
+      min-height:30px;
+      line-height:1.4;
+      margin-bottom:6px;
+      overflow:hidden;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+    }
+    .seat-foot{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+      padding-top:6px;
+      border-top:1px dashed #D9CCB0;
+    }
+    .seat-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .seat-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 
     /* pipeline strip on card */
     .ec-pipe{
@@ -364,7 +574,7 @@
     }
 
     /* ══ 状态颜色 - 明亮校园风格 ══ */
-    .st-Inbox{
+    .st-Pending{
       background:#DBEAFE;
       color:#1E40AF;
       border-color:#3B82F6
@@ -417,24 +627,6 @@
       background:#F1F5F9;
       color:#64748B;
       border-color:#94A3B8
-    }
-
-    .st-Next{
-      background:#F0FDFA;
-      color:#115E59;
-      border-color:#14B8A6
-    }
-
-    .st-Technical{
-      background:#FFE4E6;
-      color:#9F1239;
-      border-color:#F43F5E
-    }
-
-    .st-Organization{
-      background:#E0F2FE;
-      color:#075985;
-      border-color:#06B6D4
     }
 
     /* ══ 班委颜色 - 明亮校园风格 ══ */
@@ -661,12 +853,12 @@
 
     /* ══ 省部调度 tab ══ */
     .duty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
-    .duty-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s}
-    .duty-card:hover{border-color:#2e3d6a}
+    .duty-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:transform .15s,border-color .15s,box-shadow .15s}
+    .duty-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md)}
     .duty-card.active-card{border-color:var(--primary)}
     .duty-card.blocked-card{border-color:#ff527055}
 
-    .dc-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--panel2);border-bottom:1px solid var(--line)}
+    .dc-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,#F5EFD9,#EFE4C7);border-bottom:1px solid var(--line)}
     .dc-emoji{font-size:22px}
     .dc-info{flex:1}
     .dc-name{font-size:14px;font-weight:800}
@@ -1004,8 +1196,8 @@
     .sess-filter:hover{border-color:var(--primary);color:var(--text)}
     .sess-filter.active{border-color:var(--primary);color:var(--primary);background:#DBEAFE}
     .sess-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
-    .sess-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;transition:border-color .12s}
-    .sess-card:hover{border-color:var(--primary)}
+    .sess-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;transition:transform .12s,border-color .12s,box-shadow .12s}
+    .sess-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
     .sc-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
     .sc-emoji{font-size:20px}
     .sc-agent{font-size:13px;font-weight:700}
@@ -1207,24 +1399,35 @@
     .ec-actions{
       display:flex;
       gap:6px;
-      margin-top:10px
+      margin-top:0;
+      flex-wrap:wrap;
+      justify-content:flex-end
     }
 
     .ec-actions .mini-act{
       font-size:11px;
-      padding:4px 10px;
-      border-radius:6px;
-      border:1px solid var(--line);
-      background:var(--bg-pattern);
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid #D8CDB7;
+      background:#FFF8E8;
       cursor:pointer;
       color:var(--text-light);
       transition:all .15s;
-      font-weight:500
+      font-weight:600
     }
 
     .ec-actions .mini-act:hover{
       border-color:var(--primary);
       color:var(--primary)
+    }
+    .ec-actions .mini-act.danger{
+      border-color:#E8B6AF;
+      color:#AE2012;
+      background:#FFF1EE;
+    }
+    .ec-actions .mini-act.danger:hover{
+      border-color:#AE2012;
+      color:#AE2012;
     }
 
     /* ══ ARCHIVE FILTER BAR ══ */
@@ -1234,9 +1437,9 @@
       gap:10px;
       margin-bottom:16px;
       flex-wrap:wrap;
-      background:var(--panel);
-      padding:12px;
-      border-radius:12px;
+      background:linear-gradient(135deg,#F7F1E1,#F2E9D2);
+      padding:12px 14px;
+      border-radius:16px;
       border:1px solid var(--line);
       box-shadow:var(--shadow-sm)
     }
@@ -1252,8 +1455,8 @@
       font-size:12px;
       padding:6px 14px;
       border-radius:8px;
-      border:1px solid var(--line);
-      background:transparent;
+      border:1px solid #CDBA9D;
+      background:#FFF8E9;
       cursor:pointer;
       color:var(--text-light);
       transition:all .2s;
@@ -1263,13 +1466,13 @@
     .archive-bar .ab-btn:hover{
       border-color:var(--primary);
       color:var(--primary);
-      background:var(--bg-pattern)
+      background:#F1E7D0
     }
 
     .archive-bar .ab-btn.active{
-      border-color:var(--primary);
-      color:var(--primary);
-      background:#E0F2FE
+      border-color:transparent;
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-light))
     }
 
     .archive-bar .ab-count{
@@ -1437,27 +1640,37 @@
     @keyframes tin{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
 
     /* ══ AGENT STATUS PANEL ══ */
-    .as-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:16px}
-    .as-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .as-panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:16px}
+    .as-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
     .as-title{font-size:13px;font-weight:700;color:var(--text)}
     .as-gw{font-size:11px;padding:3px 10px;border-radius:999px;margin-left:auto}
     .as-gw.ok{background:#D1FAE5;border:1px solid #10B981;color:var(--secondary)}
     .as-gw.err{background:#FEE2E2;border:1px solid #EF4444;color:var(--danger)}
     .as-gw.warn{background:#FEF3C7;border:1px solid #F59E0B;color:var(--accent)}
-    .as-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
-    .as-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;position:relative}
-    .as-card:hover{border-color:var(--primary);background:#EFF6FF}
-    .as-card .as-emoji{font-size:22px;margin-bottom:3px}
-    .as-card .as-label{font-size:12px;font-weight:700;color:var(--text)}
-    .as-card .as-role{font-size:10px;color:var(--muted)}
-    .as-card .as-status{font-size:10px;margin-top:4px}
-    .as-card .as-time{font-size:9px;color:var(--muted);margin-top:2px}
-    .as-card .as-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%}
-    .as-dot.running{background:#10B981;box-shadow:0 0 6px rgba(16,185,129,.5);animation:pulse 1.5s infinite}
-    .as-dot.idle{background:#94A3B8}
-    .as-dot.offline{background:#EF4444;animation:pulse 1.2s infinite}
-    .as-dot.unconfigured{background:#CBD5E1}
-    .as-wake-btn{font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--primary);color:var(--primary);background:transparent;cursor:pointer;margin-top:6px;transition:background .15s}
+    .as-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px}
+    .as-stat{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:11px;display:flex;align-items:center;gap:6px;justify-content:center}
+    .as-stat b{font-size:14px;color:var(--text)}
+    .as-lanes{display:flex;flex-direction:column;gap:8px}
+    .as-lane{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:8px 10px}
+    .as-lane-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:var(--muted);font-weight:700}
+    .as-track{display:flex;flex-wrap:wrap;gap:7px}
+    .as-empty{font-size:11px;color:var(--muted);padding:4px 2px}
+    .as-node{display:inline-flex;align-items:center;gap:7px;padding:6px 8px;border-radius:999px;background:#fff;border:1px solid var(--line);min-height:34px}
+    .as-node.running{border-color:#86EFAC;background:#F0FDF4}
+    .as-node.idle{border-color:#CBD5E1;background:#F8FAFC}
+    .as-node.offline{border-color:#FCA5A5;background:#FEF2F2}
+    .as-node.unconfigured{border-color:#E2E8F0;background:#F8FAFC}
+    .as-ind{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .as-ind.running{background:#10B981;box-shadow:0 0 6px rgba(16,185,129,.45);animation:pulse 1.5s infinite}
+    .as-ind.idle{background:#94A3B8}
+    .as-ind.offline{background:#EF4444;animation:pulse 1.2s infinite}
+    .as-ind.unconfigured{background:#CBD5E1}
+    .as-emoji{font-size:16px;line-height:1}
+    .as-main{display:flex;flex-direction:column;line-height:1.15}
+    .as-main b{font-size:11px;color:var(--text);font-weight:700}
+    .as-main small{font-size:9px;color:var(--muted)}
+    .as-time{font-size:9px;color:var(--muted);margin-left:2px}
+    .as-wake-btn{font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid var(--primary);color:var(--primary);background:transparent;cursor:pointer;margin-top:0;transition:background .15s}
     .as-wake-btn:hover{background:var(--primary);color:#fff}
     .as-wake-btn:disabled{opacity:.4;cursor:not-allowed}
     .as-refresh{font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid var(--line);color:var(--muted);background:transparent;cursor:pointer;transition:background .15s}
@@ -1466,6 +1679,7 @@
     .as-wake-all:hover{background:var(--warn);color:#fff}
     .as-summary{font-size:11px;color:var(--muted);display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line)}
     .as-summary span{display:flex;align-items:center;gap:4px}
+    @media(max-width:760px){.as-overview{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
     /* ══ OFFICIALS ══ */
     /* activity bar */
@@ -1623,8 +1837,8 @@
 
     /* ══ MEMORIAL TAB ══ */
     .mem-list{display:flex;flex-direction:column;gap:8px}
-    .mem-card{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color .12s}
-    .mem-card:hover{border-color:var(--primary)}
+    .mem-card{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;cursor:pointer;transition:transform .12s,border-color .12s,box-shadow .12s}
+    .mem-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
     .mem-icon{font-size:28px;flex-shrink:0;margin-top:2px}
     .mem-info{flex:1;min-width:0}
     .mem-title{font-size:14px;font-weight:700;margin-bottom:4px}
@@ -1656,8 +1870,8 @@
     .tpl-cat:hover{border-color:var(--primary);color:var(--text)}
     .tpl-cat.active{border-color:var(--primary);color:var(--primary);background:#DBEAFE}
     .tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
-    .tpl-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;transition:border-color .12s;cursor:pointer;display:flex;flex-direction:column}
-    .tpl-card:hover{border-color:var(--primary)}
+    .tpl-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;transition:transform .12s,border-color .12s,box-shadow .12s;cursor:pointer;display:flex;flex-direction:column}
+    .tpl-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
     .tpl-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
     .tpl-icon{font-size:24px}
     .tpl-name{font-size:14px;font-weight:700}
@@ -1679,8 +1893,8 @@
 <!-- CLASS CEREMONY -->
 <div class="ceremony-bg" id="ceremony" style="display:none" onclick="skipCeremony()">
   <div class="crm-glow"></div>
-  <div class="crm-line1" id="crm-l1">📚 早读开始</div>
-  <div class="crm-line2" id="crm-l2">各班委请注意</div>
+  <div class="crm-line1" id="crm-l1">📚 课堂已开始</div>
+  <div class="crm-line2" id="crm-l2">班级 Agent 已就绪</div>
   <div class="crm-line3" id="crm-l3"></div>
   <div class="crm-date" id="crm-date"></div>
   <div class="crm-skip">点击任意处跳过</div>
@@ -1691,8 +1905,8 @@
   <!-- HEADER -->
   <div class="hdr">
     <div>
-      <div class="logo">🎓 ClassBrainAI · 智能班级管理系统</div>
-      <div class="sub">班主任视角 · 实时任务追踪</div>
+      <div class="logo">ClassBrain Command</div>
+      <div class="sub">班级协同工作台 · 班主任总览</div>
     </div>
     <div class="hdr-r">
       <span class="chip" id="chip-sync">⟳ 同步中</span>
@@ -1702,17 +1916,36 @@
     </div>
   </div>
 
+  <div class="command-deck">
+    <div class="cmd-hero">
+      <div class="cmd-kicker">Class Board</div>
+      <div class="cmd-title">今日班级任务总览</div>
+      <div class="cmd-sub">先检查阻塞，再分配任务，再跟进结果。所有任务在一个界面里可追踪、可复盘。</div>
+      <div class="cmd-ticker" id="cmd-ticker">态势更新中：等待首轮同步结果…</div>
+    </div>
+    <div class="cmd-actions">
+      <div class="line">快捷操作</div>
+      <div class="cmd-grid">
+        <button class="cmd-btn primary" onclick="commandAction('scan')">全局检查<small>识别停滞任务并给出建议</small></button>
+        <button class="cmd-btn" onclick="commandAction('templates')">发布模板<small>进入模板中心快速创建任务</small></button>
+        <button class="cmd-btn" onclick="commandAction('monitor')">查看执行看板<small>查看班级 Agent 在线状态与负载</small></button>
+        <button class="cmd-btn" onclick="commandAction('refresh')">强制同步<small>立即刷新全局数据</small></button>
+      </div>
+      <div class="cmd-protocol">班级任务流程：`检查` → `分配` → `跟进`。出现异常时，进入“执行看板”处理重试或调整。</div>
+    </div>
+  </div>
+
   <!-- TABS -->
   <div class="tabs">
-    <div class="tab active" data-tab="edicts">📋 任务看板 <span class="tbadge" id="tb-e">0</span></div>
-    <div class="tab" data-tab="monitor">📊 班委调度 <span class="tbadge" id="tb-m">0</span></div>
-    <div class="tab" data-tab="officials">👥 班委总览</div>
-    <div class="tab" data-tab="models">⚙️ 模型配置</div>
-    <div class="tab" data-tab="skills">🛠️ 技能配置</div>
-    <div class="tab" data-tab="sessions">💬 小任务 <span class="tbadge" id="tb-s">0</span></div>
-    <div class="tab" data-tab="memorials">📝 汇报记录 <span class="tbadge" id="tb-mem">0</span></div>
-    <div class="tab" data-tab="templates">📚 任务模板</div>
-    <div class="tab" data-tab="morning">📰 早读要闻</div>
+    <div class="tab active" data-tab="edicts">课堂座位图 <span class="tbadge" id="tb-e">0</span></div>
+    <div class="tab" data-tab="monitor">执行看板 <span class="tbadge" id="tb-m">0</span></div>
+    <div class="tab" data-tab="officials">班委画像</div>
+    <div class="tab" data-tab="models">模型矩阵</div>
+    <div class="tab" data-tab="skills">技能工坊</div>
+    <div class="tab" data-tab="sessions">对话流 <span class="tbadge" id="tb-s">0</span></div>
+    <div class="tab" data-tab="memorials">结果档案 <span class="tbadge" id="tb-mem">0</span></div>
+    <div class="tab" data-tab="templates">模板中心</div>
+    <div class="tab" data-tab="morning">学习资讯</div>
   </div>
 
   <!-- ══ 任务看板 ══ -->
@@ -1723,13 +1956,14 @@
       <button class="ab-btn" data-filter="archived" onclick="setEdictFilter('archived')">📦 已归档</button>
       <button class="ab-btn" data-filter="all" onclick="setEdictFilter('all')">全部</button>
       <span class="ab-count" id="archive-count"></span>
-      <button class="ab-scan" id="btn-global-scan" onclick="runGlobalSchedulerScan()">🧭 班长巡检</button>
-      <span class="ab-scan-status" id="global-scan-status">未巡检</span>
-      <button class="ab-scan-detail" id="btn-global-scan-detail" onclick="toggleGlobalScanDetails()" style="display:none">查看巡检详情</button>
-      <button class="ab-scan-copy" id="btn-global-scan-copy" onclick="copyGlobalScanReport()" style="display:none">📋 复制巡检报告</button>
+      <button class="ab-scan" id="btn-global-scan" onclick="runGlobalSchedulerScan()">🧭 全局检查</button>
+      <span class="ab-scan-status" id="global-scan-status">未检查</span>
+      <button class="ab-scan-detail" id="btn-global-scan-detail" onclick="toggleGlobalScanDetails()" style="display:none">查看检查详情</button>
+      <button class="ab-scan-copy" id="btn-global-scan-copy" onclick="copyGlobalScanReport()" style="display:none">📋 复制检查报告</button>
       <button class="ab-archive-all" id="btn-archive-done" onclick="archiveAllDone()" style="display:none">📦 一键归档已完成</button>
     </div>
     <div class="global-scan-detail" id="global-scan-detail"></div>
+    <div class="classroom-podium">讲台 · 班主任视角（点击座位查看详情）</div>
     <div id="edict-grid" class="edict-grid"></div>
   </div>
 
@@ -1770,18 +2004,16 @@
       <span style="font-size:11px;color:var(--muted)">筛选：</span>
       <span class="sess-filter active" data-sf="all" onclick="filterSessions('all',this)">全部</span>
       <span class="sess-filter" data-sf="active" onclick="filterSessions('active',this)">进行中</span>
-      <span class="sess-filter" data-sf="study" onclick="filterSessions('study',this)">学习委员</span>
-      <span class="sess-filter" data-sf="shangshu" onclick="filterSessions('shangshu',this)">副班长</span>
-      <span class="sess-filter" data-sf="study" onclick="filterSessions('study',this)">学习委员</span>
-      <span class="sess-filter" data-sf="morning_reading" onclick="filterSessions('morning_reading',this)">早读委员</span>
-      <span class="sess-filter" data-sf="arts" onclick="filterSessions('arts',this)">文艺委员</span>
-      <span class="sess-filter" data-sf="discipline" onclick="filterSessions('discipline',this)">纪律委员</span>
-      <span class="sess-filter" data-sf="finance" onclick="filterSessions('finance',this)">生活委员</span>
-      <span class="sess-filter" data-sf="logistics" onclick="filterSessions('logistics',this)">后勤委员</span>
-      <span class="sess-filter" data-sf="organization" onclick="filterSessions('organization',this)">组织委员</span>
-      <span class="sess-filter" data-sf="technical" onclick="filterSessions('technical',this)">技术委员</span>
-      <span class="sess-filter" data-sf="menxia" onclick="filterSessions('menxia',this)">班委主席</span>
-      <span class="sess-filter" data-sf="chair" onclick="filterSessions('chair',this)">班委主席</span>
+      <span class="sess-filter" data-sf="classbrain-study" onclick="filterSessions('classbrain-study',this)">学习委员</span>
+      <span class="sess-filter" data-sf="classbrain-vice" onclick="filterSessions('classbrain-vice',this)">副班长</span>
+      <span class="sess-filter" data-sf="classbrain-morning" onclick="filterSessions('classbrain-morning',this)">早读委员</span>
+      <span class="sess-filter" data-sf="classbrain-arts" onclick="filterSessions('classbrain-arts',this)">文艺委员</span>
+      <span class="sess-filter" data-sf="classbrain-discipline" onclick="filterSessions('classbrain-discipline',this)">纪律委员</span>
+      <span class="sess-filter" data-sf="classbrain-finance" onclick="filterSessions('classbrain-finance',this)">生活委员</span>
+      <span class="sess-filter" data-sf="classbrain-logistics" onclick="filterSessions('classbrain-logistics',this)">后勤委员</span>
+      <span class="sess-filter" data-sf="classbrain-organization" onclick="filterSessions('classbrain-organization',this)">组织委员</span>
+      <span class="sess-filter" data-sf="classbrain-technical" onclick="filterSessions('classbrain-technical',this)">技术委员</span>
+      <span class="sess-filter" data-sf="classbrain-chair" onclick="filterSessions('classbrain-chair',this)">班委主席</span>
     </div>
     <div id="sess-grid" class="sess-grid"></div>
   </div>
@@ -1814,11 +2046,11 @@
     <div class="tpl-grid" id="tpl-grid"></div>
   </div>
 
-  <!-- ══ 天下要闻 ══ -->
+  <!-- ══ 学习资讯 ══ -->
   <div class="panel" id="panel-morning">
     <div class="mb-hdr">
       <div>
-        <div class="mb-title">📰 天下要闻 · 御览</div>
+        <div class="mb-title">📰 学习资讯</div>
         <div id="mb-subtitle" class="mb-sub">加载中…</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -1891,7 +2123,10 @@
 
 <script>
 /* ══ CONFIG ══ */
-const API = (location.origin === 'file://' ? 'http://127.0.0.1:7891' : location.origin) + '/api';
+const API_BASE = (location.protocol === 'file:' || !location.origin || location.origin === 'null')
+  ? 'http://127.0.0.1:7891'
+  : location.origin;
+const API = API_BASE + '/api';
 let liveStatus=null, agentConfig=null, activeTab='edicts', countdown=5;
 let globalScanActions = [], globalScanDetailOpen = false;
 let globalScanCheckedAt = '', globalScanCount = 0;
@@ -1927,12 +2162,12 @@ function restoreGlobalScanState(){
   if(st){
     const at = globalScanCheckedAt.replace('T',' ').substring(11,19);
     const count = globalScanCount;
-    st.textContent = count || at ? `最近巡检: ${count} 个动作${at ? ' · ' + at : ''}` : '未巡检';
+    st.textContent = count || at ? `最近检查: ${count} 个动作${at ? ' · ' + at : ''}` : '未检查';
   }
   if(detailBtn){
     detailBtn.style.display = globalScanActions.length ? 'inline-block' : 'none';
     detailBtn.classList.toggle('active', globalScanDetailOpen);
-    detailBtn.textContent = globalScanDetailOpen ? '收起巡检详情' : '查看巡检详情';
+    detailBtn.textContent = globalScanDetailOpen ? '收起检查详情' : '查看检查详情';
   }
   if(copyBtn){
     copyBtn.style.display = globalScanActions.length ? 'inline-block' : 'none';
@@ -1942,7 +2177,7 @@ function restoreGlobalScanState(){
 
 /* ══ PIPELINE DEFINITION - ClassBrainAI 班级主题 ══ */
 const PIPE = [
-  {key:'Inbox',    dept:'班主任',   icon:'👨‍🏫', action:'发布'},
+  {key:'Pending',  dept:'班主任',   icon:'👨‍🏫', action:'发布'},
   {key:'Monitor',  dept:'班长',   icon:'👤', action:'分拣'},
   {key:'Study',    dept:'学习委员', icon:'📚', action:'规划'},
   {key:'Chair',    dept:'班委主席', icon:'👨‍💼', action:'审议'},
@@ -1951,7 +2186,7 @@ const PIPE = [
   {key:'Review',   dept:'副班长', icon:'🔍', action:'汇总'},
   {key:'Done',     dept:'完成',   icon:'✅', action:'归档'},
 ];
-const PIPE_STATE_IDX = {Inbox:0,Pending:0,Monitor:1,Study:2,Chair:3,Assigned:4,Doing:5,Review:6,Done:7,Blocked:5,Cancelled:5,Next:4};
+const PIPE_STATE_IDX = {Pending:0,Monitor:1,Study:2,Chair:3,Assigned:4,Doing:5,Review:6,Done:7,Blocked:5,Cancelled:5};
 
 /* ══ DEPT COLORS - ClassBrainAI 班委主题 ══ */
 const DEPT_COLOR = {'班长':'#F59E0B','学习委员':'#8B5CF6','班委主席':'#3B82F6','副班长':'#10B981','技术委员':'#EF4444','后勤委员':'#0EA5E9','财务委员':'#F97316','文艺委员':'#EAB308','纪律委员':'#DC2626','组织委员':'#10B981','班主任':'#0EA5E9','完成':'#10B981'};
@@ -1962,22 +2197,30 @@ const esc=s=>s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 async function fetchJ(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error(r.status);return r.json()}
 async function postJ(u,d){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});return r.json()}
 function toast(msg,type='ok',ms=3000){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('toaster').appendChild(el);setTimeout(()=>el.remove(),ms)}
-const STATE_LABEL={Inbox:'收件',Pending:'待处理',Monitor:'班长处理',Study:'学习委员规划',Chair:'班委主席审议',Assigned:'已派发',Doing:'执行中',Review:'待审查',Done:'已完成',Blocked:'已暂停',Cancelled:'已取消',Next:'待执行',Technical:'技术委员执行',Organization:'组织委员处理'};
+const STATE_LABEL={Pending:'待处理',Monitor:'班长处理',Study:'学习委员规划',Chair:'班委主席审议',Assigned:'已派发',Doing:'执行中',Review:'待审查',Done:'已完成',Blocked:'已暂停',Cancelled:'已取消'};
+function viewState(raw){ return (raw && PIPE_STATE_IDX.hasOwnProperty(raw)) ? raw : 'Pending'; }
+function stateTagClass(raw){ return `st-${viewState(raw)}`; }
 // 根据轮次动态生成状态标签
 function stateLabel(t){
+  const s = viewState(t.state);
   const r = t.review_round||0;
-  if(t.state==='Chair' && r>1) return `班委主席审议（第${r}轮）`;
-  if(t.state==='Study' && r>0) return `学习委员修订（第${r}轮）`;
-  return STATE_LABEL[t.state]||t.state;
+  if(s==='Chair' && r>1) return `班委主席审议（第${r}轮）`;
+  if(s==='Study' && r>0) return `学习委员修订（第${r}轮）`;
+  return STATE_LABEL[s]||STATE_LABEL[t.state]||t.state;
 }
 
 /* ══ TASK CLASSIFICATION - ClassBrainAI ══ */
-// 班主任的任务：CB-* 开头，有真实标题
-function isEdict(t){ return /^CB-/i.test(t.id||'') }
+// 任务：兼容 CB-* / JJC-*，并兜底识别历史数据结构
+function isEdict(t){
+  const id = String((t&&t.id)||'');
+  if(/^(CB-|JJC-)/i.test(id)) return true;
+  if(/^(OC-|MC-)/i.test(id)) return false;
+  return !!(t&& (t.official || (Array.isArray(t.flow_log) && t.flow_log.length)));
+}
 // 系统会话：OC-* / MC-* 开头
 function isSession(t){ return /^(OC-|MC-)/i.test(t.id||'') }
 // 归档判定：Done/Cancelled 或手动标记 archived
-function isArchived(t){ return t.archived || ['Done','Cancelled'].includes(t.state) }
+function isArchived(t){ const s=viewState(t.state); return t.archived || ['Done','Cancelled'].includes(s) }
 let edictFilter = 'active';  // 'active' | 'archived' | 'all'
 function setEdictFilter(f){
   edictFilter = f;
@@ -1987,7 +2230,7 @@ function setEdictFilter(f){
 
 /* ══ PIPE STATUS FOR A TASK ══ */
 function getPipeStatus(t){
-  const stateIdx = PIPE_STATE_IDX[t.state] ?? 4;
+  const stateIdx = PIPE_STATE_IDX[viewState(t.state)] ?? 4;
   return PIPE.map((stage, i) => ({
     ...stage,
     status: i < stateIdx ? 'done' : i === stateIdx ? 'active' : 'pending'
@@ -2019,8 +2262,8 @@ function renderEdicts(tasks){
   else if(edictFilter==='archived') edicts = archivedEdicts;
   else edicts = allEdicts;
   edicts.sort((a,b) => {
-    const order = {Doing:0,Review:1,Assigned:2,Chair:3,Study:4,Monitor:5,Inbox:6,Blocked:7,Next:8,Done:9,Cancelled:10,Technical:2,Organization:2};
-    return (order[a.state]??9) - (order[b.state]??9);
+    const order = {Doing:0,Review:1,Assigned:2,Chair:3,Study:4,Monitor:5,Pending:6,Blocked:7,Done:9,Cancelled:10};
+    return (order[viewState(a.state)]??9) - (order[viewState(b.state)]??9);
   });
   // Tab badge = active count only
   document.getElementById('tb-e').textContent = activeEdicts.length;
@@ -2028,56 +2271,71 @@ function renderEdicts(tasks){
   // Archive stats
   document.getElementById('archive-count').textContent = `活跃 ${activeEdicts.length} · 归档 ${archivedEdicts.length} · 共 ${allEdicts.length}`;
   // Show "一键归档" button if there are un-archived Done/Cancelled tasks
-  const unArchivedDone = allEdicts.filter(t=>!t.archived && ['Done','Cancelled'].includes(t.state));
+  const unArchivedDone = allEdicts.filter(t=>!t.archived && ['Done','Cancelled'].includes(viewState(t.state)));
   document.getElementById('btn-archive-done').style.display = unArchivedDone.length ? '' : 'none';
   const el = document.getElementById('edict-grid');
   if(!edicts.length){
-    el.innerHTML='<div class="empty" style="grid-column:1/-1">暂无任务<br><small style="font-size:11px;margin-top:6px;display:block;color:var(--muted)">通过飞书向班长发送任务，班长分拣后转学习委员处理</small></div>';
+    const demoSeats = Array.from({length: 12}).map((_, idx) => {
+      const row = String.fromCharCode(65 + Math.floor(idx/6));
+      const col = (idx % 6) + 1;
+      const seatNo = `${row}${col}`;
+      return `
+      <div class="edict-card archived" style="opacity:.7;cursor:default" onclick="event.stopPropagation()">
+        <div class="seat-no">座位 ${seatNo} · 空位</div>
+        <div class="seat-title">等待新任务入座</div>
+        <div class="seat-tags"><span class="tag">空闲</span></div>
+        <div class="seat-now">通过飞书向班长发送任务，系统将自动编排到对应座位。</div>
+        <div class="seat-foot"><div class="seat-left"><span class="hb unknown">⚪</span></div><div class="seat-right"></div></div>
+      </div>`;
+    }).join('');
+    el.innerHTML = demoSeats;
     return;
   }
-  el.innerHTML = edicts.map(t => {
+  el.innerHTML = edicts.map((t, idx) => {
     const hb = t.heartbeat||{status:'unknown',label:'⚪'};
     const deptCls = 'dt-'+(t.org||'').replace(/\s/g,'');
-    const stCls = 'st-'+(t.state||'');
+    const stCls = stateTagClass(t.state);
     const isBlocked = t.block && t.block !== '无' && t.block !== '-';
     const curStage = PIPE.find((_,i) => getPipeStatus(t)[i].status === 'active');
     const todos = t.todos||[];
     const todoDone = todos.filter(x=>x.status==='completed').length;
     const todoTotal = todos.length;
-    const canStop = !['Done','Blocked','Cancelled'].includes(t.state);
-    const canResume = ['Blocked','Cancelled'].includes(t.state);
+    const s = viewState(t.state);
+    const canStop = !['Done','Blocked','Cancelled'].includes(s);
+    const canResume = ['Blocked','Cancelled'].includes(s);
     const archCls = isArchived(t) ? ' archived' : '';
+    const row = String.fromCharCode(65 + Math.floor(idx/6));
+    const col = (idx % 6) + 1;
+    const seatNo = `${row}${col}`;
     return `
     <div class="edict-card${archCls}" onclick='openTask(${JSON.stringify(t.id)})'>
-      ${miniPipe(t)}
-      <div class="ec-id">${esc(t.id)}</div>
-      <div class="ec-title">${esc(t.title||'(无标题)')}</div>
-      <div class="ec-meta">
+      <div class="seat-no">座位 ${seatNo} · ${esc(t.id)}</div>
+      <div class="seat-title">${esc(t.title||'(无标题)')}</div>
+      <div class="seat-tags">
         <span class="tag ${stCls}">${stateLabel(t)}</span>
         ${t.org ? `<span class="tag ${deptCls}">${esc(t.org)}</span>` : ''}
-        ${curStage ? `<span style="font-size:11px;color:var(--muted)">当前: <b style="color:${deptColor(curStage.dept)}">${curStage.dept} · ${curStage.action}</b></span>` : ''}
+        ${t.eta && t.eta !== '-' ? `<span class="tag">📅 ${esc(t.eta)}</span>` : ''}
       </div>
-      ${t.now && t.now !== '-' ? `<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:6px">${esc(t.now.substring(0,80))}</div>` : ''}
-      ${(t.review_round||0)>0 ? `<div style="font-size:11px;margin-bottom:6px">
-        ${Array.from({length:t.review_round||0},(_,i)=>`<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${i<(t.review_round||0)-1?'#CBD5E1':'#DBEAFE'};border:1px solid ${i<(t.review_round||0)-1?'#94A3B8':'var(--primary)'};font-size:9px;text-align:center;line-height:13px;margin-right:2px;color:${i<(t.review_round||0)-1?'#64748B':'var(--primary)'}">${i+1}</span>`).join('')}
-        <span style="color:var(--muted);font-size:10px">第 ${t.review_round} 轮磋商</span>
-      </div>` : ''}
+      ${t.now && t.now !== '-' ? `<div class="seat-now">${esc(t.now.substring(0,120))}</div>` : `<div class="seat-now">当前等待班委推进下一步动作</div>`}
       ${todoTotal ? `<div class="ec-todo-bar">
         <span>📋 ${todoDone}/${todoTotal}</span>
         <div class="ec-todo-track"><div class="ec-todo-fill" style="width:${Math.round(todoDone/todoTotal*100)}%"></div></div>
         <span>${todoDone===todoTotal?'✅ 全部完成':'🔄 进行中'}</span>
       </div>` : ''}
-      <div class="ec-footer">
-        <span class="hb ${hb.status}">${esc(hb.label)}</span>
-        ${isBlocked ? `<span class="tag" style="border-color:#EF4444;color:var(--danger);background:#FEF2F2">🚫 ${esc(t.block)}</span>` : ''}
-        ${t.eta && t.eta !== '-' ? `<span style="font-size:11px;color:var(--muted)">📅 ${esc(t.eta)}</span>` : ''}
-      </div>
-      <div class="ec-actions" onclick="event.stopPropagation()">
-        ${canStop ? `<button class="mini-act" onclick="confirmAction('${esc(t.id)}','stop')">⏸ 叫停</button>
-        <button class="mini-act danger" onclick="confirmAction('${esc(t.id)}','cancel')">🚫 取消</button>` : ''}
-        ${canResume ? `<button class="mini-act" onclick="taskAction('${esc(t.id)}','resume','恢复执行')">▶ 恢复</button>` : ''}
-        ${isArchived(t) && !t.archived ? `<button class="mini-act" onclick="archiveTask('${esc(t.id)}')" title="移入归档">📦 归档</button>` : ''}
-        ${t.archived ? `<button class="mini-act" onclick="unarchiveTask('${esc(t.id)}')" title="取消归档">📤 取消归档</button>` : ''}
+      <div class="seat-foot">
+        <div class="seat-left">
+          <span class="hb ${hb.status}">${esc(hb.label)}</span>
+          ${curStage ? `<span class="tag">${curStage.dept}</span>` : ''}
+          ${isBlocked ? `<span class="tag" style="border-color:#EF4444;color:var(--danger);background:#FEF2F2">🚫 ${esc(t.block)}</span>` : ''}
+          ${(t.review_round||0)>0 ? `<span style="font-size:11px;color:var(--muted)">第 ${t.review_round} 轮磋商</span>` : ''}
+        </div>
+        <div class="seat-right ec-actions" onclick="event.stopPropagation()">
+          ${canStop ? `<button class="mini-act" onclick="confirmAction('${esc(t.id)}','stop')">叫停</button>
+          <button class="mini-act danger" onclick="confirmAction('${esc(t.id)}','cancel')">取消</button>` : ''}
+          ${canResume ? `<button class="mini-act" onclick="taskAction('${esc(t.id)}','resume','恢复执行')">恢复</button>` : ''}
+          ${isArchived(t) && !t.archived ? `<button class="mini-act" onclick="archiveTask('${esc(t.id)}')" title="移入归档">归档</button>` : ''}
+          ${t.archived ? `<button class="mini-act" onclick="unarchiveTask('${esc(t.id)}')" title="取消归档">取消归档</button>` : ''}
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -2105,13 +2363,38 @@ function renderAgentsStatus(data){
   if(!data||!data.ok) return;
   const gw = data.gateway||{};
   const agents = data.agents||[];
-  // 跳过 main（和 taizi 重复）
+  // 跳过 main（历史遗留）
   const filtered = agents.filter(a=>a.id!=='main');
   const running = filtered.filter(a=>a.status==='running').length;
   const idle = filtered.filter(a=>a.status==='idle').length;
   const offline = filtered.filter(a=>a.status==='offline').length;
   const unconf = filtered.filter(a=>a.status==='unconfigured').length;
   const gwCls = gw.probe?'ok':gw.alive?'warn':'err';
+  const byStatus = {
+    running: filtered.filter(a=>a.status==='running'),
+    idle: filtered.filter(a=>a.status==='idle'),
+    offline: filtered.filter(a=>a.status==='offline'),
+    unconfigured: filtered.filter(a=>a.status==='unconfigured'),
+  };
+
+  function renderLaneNode(a){
+    const canWake = a.status!=='running' && a.status!=='unconfigured' && gw.alive;
+    const activeText = a.lastActive ? `活跃 ${esc(a.lastActive)}` : '无活动记录';
+    return `<div class="as-node ${a.status}" title="${esc(a.role)} · ${esc(a.statusLabel)}">
+      <span class="as-ind ${a.status}"></span>
+      <span class="as-emoji">${a.emoji}</span>
+      <span class="as-main"><b>${esc(a.label)}</b><small>${esc(a.role)} · ${esc(a.statusLabel)}</small></span>
+      <span class="as-time">${activeText}</span>
+      ${canWake?`<button class="as-wake-btn" onclick="event.stopPropagation();wakeAgent('${a.id}',this)">唤醒</button>`:''}
+    </div>`;
+  }
+
+  function renderLane(icon, label, list){
+    return `<div class="as-lane">
+      <div class="as-lane-head">${icon} ${label} · ${list.length}</div>
+      <div class="as-track">${list.length ? list.map(renderLaneNode).join('') : '<div class="as-empty">当前无 Agent</div>'}</div>
+    </div>`;
+  }
 
   document.getElementById('agent-status-panel').innerHTML=`
     <div class="as-panel">
@@ -2121,26 +2404,21 @@ function renderAgentsStatus(data){
         <button class="as-refresh" onclick="loadAgentsStatus()" title="刷新状态">🔄 刷新</button>
         ${offline+unconf>0?`<button class="as-wake-all" onclick="wakeAllAgents()" title="唤醒所有离线Agent">⚡ 全部唤醒</button>`:''}
       </div>
-      <div class="as-grid">
-        ${filtered.map(a=>{
-          const dotCls = a.status;
-          const canWake = a.status!=='running' && a.status!=='unconfigured' && gw.alive;
-          return `<div class="as-card" title="${esc(a.role)} · ${esc(a.statusLabel)}">
-            <div class="as-dot ${dotCls}"></div>
-            <div class="as-emoji">${a.emoji}</div>
-            <div class="as-label">${esc(a.label)}</div>
-            <div class="as-role">${esc(a.role)}</div>
-            <div class="as-status">${esc(a.statusLabel)}</div>
-            ${a.lastActive?`<div class="as-time">⏰ ${esc(a.lastActive)}</div>`:'<div class="as-time">无活动记录</div>'}
-            ${canWake?`<button class="as-wake-btn" onclick="event.stopPropagation();wakeAgent('${a.id}',this)">⚡ 唤醒</button>`:''}
-          </div>`;
-        }).join('')}
+      <div class="as-overview">
+        <div class="as-stat"><span class="as-ind running"></span>运行中 <b>${running}</b></div>
+        <div class="as-stat"><span class="as-ind idle"></span>待命 <b>${idle}</b></div>
+        <div class="as-stat"><span class="as-ind offline"></span>离线 <b>${offline}</b></div>
+        <div class="as-stat"><span class="as-ind unconfigured"></span>未配置 <b>${unconf}</b></div>
+      </div>
+      <div class="as-lanes">
+        ${renderLane('🟢','运行中',byStatus.running)}
+        ${renderLane('⚪','待命',byStatus.idle)}
+        ${renderLane('🔴','离线',byStatus.offline)}
+        ${renderLane('⚙️','未配置',byStatus.unconfigured)}
       </div>
       <div class="as-summary">
-        <span><span class="as-dot running" style="position:static;width:8px;height:8px"></span> ${running} 运行中</span>
-        <span><span class="as-dot idle" style="position:static;width:8px;height:8px"></span> ${idle} 待命</span>
-        ${offline?`<span><span class="as-dot offline" style="position:static;width:8px;height:8px"></span> ${offline} 离线</span>`:''}
-        ${unconf?`<span><span class="as-dot unconfigured" style="position:static;width:8px;height:8px"></span> ${unconf} 未配置</span>`:''}
+        <span>共 ${filtered.length} 个 Agent</span>
+        <span>在线率 ${filtered.length?Math.round((running+idle)/filtered.length*100):0}%</span>
         <span style="margin-left:auto;font-size:10px;color:var(--muted)">检测于 ${(data.checkedAt||'').substring(11,19)}</span>
       </div>
     </div>`;
@@ -2176,21 +2454,21 @@ async function wakeAllAgents(){
 /* ══ DEPT MONITOR ══ */
 function renderMonitor(tasks){
   const DEPTS = [
-    {id:'monitor',    label:'班长',      emoji:'👤',role:'班长',      rank:'正一品'},
-    {id:'vice_monitor',label:'副班长',    emoji:'📋',role:'副班长',    rank:'正一品'},
-    {id:'chair',      label:'班委主席',  emoji:'👨‍💼',role:'班委主席',  rank:'正一品'},
-    {id:'study',      label:'学习委员',  emoji:'📚',role:'学习委员',  rank:'正二品'},
-    {id:'morning_reading',label:'早读委员',emoji:'📖',role:'早读委员',rank:'正二品'},
-    {id:'arts',       label:'文艺委员',  emoji:'🎨',role:'文艺委员',  rank:'正二品'},
-    {id:'discipline', label:'纪律委员',  emoji:'📏',role:'纪律委员',  rank:'正二品'},
-    {id:'finance',    label:'生活委员',  emoji:'💰',role:'生活委员',  rank:'正二品'},
-    {id:'logistics',  label:'后勤委员',  emoji:'🔧',role:'后勤委员',  rank:'正二品'},
-    {id:'organization',label:'组织委员', emoji:'📋',role:'组织委员', rank:'正二品'},
-    {id:'technical',  label:'技术委员',  emoji:'💻',role:'技术委员',  rank:'正二品'},
+    {id:'monitor',    label:'班长',      emoji:'👤',role:'班长'},
+    {id:'vice_monitor',label:'副班长',    emoji:'📋',role:'副班长'},
+    {id:'chair',      label:'班委主席',  emoji:'👨‍💼',role:'班委主席'},
+    {id:'study',      label:'学习委员',  emoji:'📚',role:'学习委员'},
+    {id:'morning_reading',label:'早读委员',emoji:'📖',role:'早读委员'},
+    {id:'arts',       label:'文艺委员',  emoji:'🎨',role:'文艺委员'},
+    {id:'discipline', label:'纪律委员',  emoji:'📏',role:'纪律委员'},
+    {id:'finance',    label:'生活委员',  emoji:'💰',role:'生活委员'},
+    {id:'logistics',  label:'后勤委员',  emoji:'🔧',role:'后勤委员'},
+    {id:'organization',label:'组织委员', emoji:'📋',role:'组织委员'},
+    {id:'technical',  label:'技术委员',  emoji:'💻',role:'技术委员'},
   ];
 
   // 每个部门当前承接的任务：从 JJC 任务里找 org 匹配且非 Done 的
-  const activeTasks = tasks.filter(t => isEdict(t) && t.state !== 'Done' && t.state !== 'Next');
+  const activeTasks = tasks.filter(t => isEdict(t) && viewState(t.state) !== 'Done');
   // 班委统计数据（如已加载）
   const offMap = {};
   if(officialsData && officialsData.officials){
@@ -2205,8 +2483,8 @@ function renderMonitor(tasks){
     const recentEdict = tasks.filter(t=>isEdict(t))
       .find(t=>(t.flow_log||[]).some(f=>f.from===d.label||f.to===d.label));
 
-    const isActive = myTasks.some(t=>t.state==='Doing');
-    const isBlocked = myTasks.some(t=>t.state==='Blocked');
+    const isActive = myTasks.some(t=>viewState(t.state)==='Doing');
+    const isBlocked = myTasks.some(t=>viewState(t.state)==='Blocked');
     const off = offMap[d.id]||{};
     const hb = off.heartbeat||{status:'idle',label:'⚪'};
     if(isActive) activeCount++;
@@ -2220,7 +2498,7 @@ function renderMonitor(tasks){
         <span class="dc-emoji">${d.emoji}</span>
         <div class="dc-info">
           <div class="dc-name">${d.label}</div>
-          <div class="dc-role">${d.role} · ${d.rank}</div>
+          <div class="dc-role">${d.role}</div>
         </div>
         <div class="dc-status">
           <span class="dc-dot ${dotCls}"></span>
@@ -2234,7 +2512,7 @@ function renderMonitor(tasks){
             <div class="dc-task-title">${esc(t.title||'(无标题)')}</div>
             ${t.now&&t.now!=='-'?`<div class="dc-task-now">${esc(t.now.substring(0,70))}</div>`:''}
             <div class="dc-task-meta">
-              <span class="tag st-${t.state}">${stateLabel(t)}</span>
+              <span class="tag ${stateTagClass(t.state)}">${stateLabel(t)}</span>
               ${t.block&&t.block!=='无'?`<span class="tag" style="border-color:#ff527044;color:var(--danger)">🚫${esc(t.block)}</span>`:''}
             </div>
           </div>`).join('') :
@@ -2266,8 +2544,9 @@ function openTask(id){
   const todos = t.todos||[];
   const todoDone = todos.filter(x=>x.status==='completed').length;
   const todoTotal = todos.length;
-  const canStop = !['Done','Blocked','Cancelled'].includes(t.state);
-  const canResume = ['Blocked','Cancelled'].includes(t.state);
+  const modalState = viewState(t.state);
+  const canStop = !['Done','Blocked','Cancelled'].includes(modalState);
+  const canResume = ['Blocked','Cancelled'].includes(modalState);
 
   document.getElementById('modal-body').innerHTML = `
     <div class="modal-id">${esc(t.id)}</div>
@@ -2304,9 +2583,9 @@ function openTask(id){
       ${canStop ? `<button class="btn-action btn-stop" onclick="confirmAction('${esc(t.id)}','stop')">⏸ 叫停任务</button>
       <button class="btn-action btn-cancel" onclick="confirmAction('${esc(t.id)}','cancel')">🚫 取消任务</button>` : ''}
       ${canResume ? `<button class="btn-action btn-resume" onclick="taskAction('${esc(t.id)}','resume','恢复执行')">▶️ 恢复执行</button>` : ''}
-      ${['Review','Chair'].includes(t.state) ? `<button class="btn-action" style="background:#2ecc8a22;color:#2ecc8a;border:1px solid #2ecc8a44" onclick="reviewAction('${esc(t.id)}','approve')">✅ 批准</button>
+      ${['Review','Chair'].includes(modalState) ? `<button class="btn-action" style="background:#2ecc8a22;color:#2ecc8a;border:1px solid #2ecc8a44" onclick="reviewAction('${esc(t.id)}','approve')">✅ 批准</button>
       <button class="btn-action" style="background:#ff527022;color:#ff5270;border:1px solid #ff527044" onclick="reviewAction('${esc(t.id)}','reject')">🚫 驳回</button>` : ''}
-      ${['Pending','Monitor','Study','Chair','Assigned','Doing','Review','Next','Technical','Organization'].includes(t.state) ? `<button class="btn-action" style="background:#7c5cfc18;color:#7c5cfc;border:1px solid #7c5cfc44" onclick="advanceState('${esc(t.id)}','${esc(t.state)}')">⏩ 推进到下一步</button>` : ''}
+      ${['Pending','Monitor','Study','Chair','Assigned','Doing','Review'].includes(modalState) ? `<button class="btn-action" style="background:#7c5cfc18;color:#7c5cfc;border:1px solid #7c5cfc44" onclick="advanceState('${esc(t.id)}','${esc(t.state)}')">⏩ 推进到下一步</button>` : ''}
     </div>
 
     <!-- 班长调度 -->
@@ -2365,7 +2644,7 @@ function openTask(id){
     <!-- 基本信息 -->
     <div class="m-section">
       <div class="m-rows">
-        <div class="m-row"><div class="mr-label">状态</div><div class="mr-val"><span class="tag st-${t.state}">${stateLabel(t)}</span>${(t.review_round||0)>0?`<span style="font-size:11px;color:var(--muted);margin-left:8px">共磋商 ${t.review_round} 轮</span>`:''}</div></div>
+        <div class="m-row"><div class="mr-label">状态</div><div class="mr-val"><span class="tag ${stateTagClass(t.state)}">${stateLabel(t)}</span>${(t.review_round||0)>0?`<span style="font-size:11px;color:var(--muted);margin-left:8px">共磋商 ${t.review_round} 轮</span>`:''}</div></div>
         <div class="m-row"><div class="mr-label">执行部门</div><div class="mr-val"><span class="tag dt-${(t.org||'').replace(/\s/g,'')}">${esc(t.org||'—')}</span></div></div>
         ${t.eta&&t.eta!=='-'?`<div class="m-row"><div class="mr-label">预计完成</div><div class="mr-val">${esc(t.eta)}</div></div>`:''}
         ${t.block&&t.block!=='无'&&t.block!=='-'?`<div class="m-row"><div class="mr-label" style="color:var(--danger)">阻塞项</div><div class="mr-val" style="color:var(--danger)">${esc(t.block)}</div></div>`:''}
@@ -2409,7 +2688,7 @@ function openTask(id){
     <!-- 实时动态 / 执行回顾 -->
     <div class="la-section" id="live-activity-section">
       <div class="la-header">
-        <span class="la-title"><span class="la-dot" id="la-dot"></span>${['Done','Cancelled'].includes(t.state)?'执行回顾':'实时动态'}</span>
+        <span class="la-title"><span class="la-dot" id="la-dot"></span>${['Done','Cancelled'].includes(viewState(t.state))?'执行回顾':'实时动态'}</span>
         <span class="la-agent" id="la-agent-label">加载中...</span>
       </div>
       <div id="la-phase-bar"></div>
@@ -2424,7 +2703,7 @@ function openTask(id){
   document.getElementById('modal-bg').classList.add('open');
 
   // 启动实时动态（Done 任务只拉一次，不轮询）
-  if(['Done','Cancelled'].includes(t.state)){
+  if(['Done','Cancelled'].includes(viewState(t.state))){
     startLiveActivity(t.id, true);
   } else {
     startLiveActivity(t.id, false);
@@ -2950,6 +3229,7 @@ async function loadLive(){
     renderEdicts(tasks);
     renderMonitor(tasks);
     renderSessions(tasks);
+    updateCommandTicker();
   }catch(e){
     document.getElementById('chip-sync').textContent='❌ 服务器未启动';
     document.getElementById('chip-sync').className='chip err';
@@ -2986,9 +3266,9 @@ let sessFilter = 'all';
 function humanTitle(t){
   let title = t.title||'';
   // "褚凤天 会话" → ok, keep
-  // "agent:shangshu:main 会话" → "副班长 主会话"
-  // "agent:gongbu:subagent:xxx 会话" → "工部 子任务"
-  // "agent:shangshu:cron:xxx 会话" → "副班长 定时任务"
+  // "agent:classbrain-vice:main 会话" → "副班长 主会话"
+  // "agent:classbrain-technical:subagent:xxx 会话" → "技术委员 子任务"
+  // "agent:classbrain-vice:cron:xxx 会话" → "副班长 定时任务"
   // "heartbeat 会话" → "心跳检测"
   if(title==='heartbeat 会话') return '💓 心跳检测';
   const m = title.match(/^agent:(\w+):(\w+)/);
@@ -2999,7 +3279,7 @@ function humanTitle(t){
     if(m[2]==='cron') return agLabel+' · 定时任务';
     return agLabel+' · '+m[2];
   }
-  // "兵部：Mission Control 映射验收" — already nice
+  // "技术委员组：Mission Control 映射验收" — already nice
   return title.replace(/ 会话$/, '') || t.id;
 }
 
@@ -3044,7 +3324,7 @@ function renderSessions(tasks){
   document.getElementById('tb-s').textContent = sessions.length;
   // apply filter
   let filtered = sessions;
-  if(sessFilter === 'active') filtered = sessions.filter(t=>!['Done','Cancelled'].includes(t.state));
+  if(sessFilter === 'active') filtered = sessions.filter(t=>!['Done','Cancelled'].includes(viewState(t.state)));
   else if(sessFilter !== 'all') filtered = sessions.filter(t=>extractAgent(t) === sessFilter);
 
   const grid = document.getElementById('sess-grid');
@@ -3161,7 +3441,7 @@ function extractAgent(t){
   const sm = t.sourceMeta||{};
   if(sm.agentId){
     // "mc-gateway-xxx" → try to match known agents
-    const known = ['taizi','zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','zaochao'];
+    const known = ['classbrain-monitor','classbrain-study','classbrain-chair','classbrain-vice','classbrain-technical','classbrain-logistics','classbrain-finance','classbrain-arts','classbrain-discipline','classbrain-organization','classbrain-morning'];
     for(const k of known){ if(sm.agentId.includes(k)) return k; }
   }
   return (t.org||'').replace(/省|部/g,'').toLowerCase();
@@ -3190,10 +3470,10 @@ function filterSessions(filter, el){
   renderSessions(liveStatus?liveStatus.tasks:[]);
 }
 
-/* ══ MORNING BRIEF (天下要闻) ══ */
+/* ══ MORNING BRIEF (学习资讯) ══ */
 const CAT_META = {
   '政治': {icon:'🏛️', color:'#6a9eff', desc:'全球政治动态'},
-  '军事': {icon:'⚔️',  color:'#ff5270', desc:'军事与冲突'},
+  '军事': {icon:'🛡️',  color:'#ff5270', desc:'国际安全动态'},
   '经济': {icon:'💹',  color:'#2ecc8a', desc:'经济与市场'},
   'AI大模型': {icon:'🤖', color:'#a07aff', desc:'AI与大模型进展'},
 };
@@ -3423,7 +3703,7 @@ async function refreshNews(){
           _newsPolling = null;
           btn.disabled = false; btn.textContent = '⟳ 立即采集';
           await loadMorning();
-          toast('✅ 天下要闻已更新', 'ok');
+          toast('✅ 学习资讯已更新', 'ok');
         } else {
           btn.textContent = `⟳ 采集中… (${pollCount * 5}s)`;
         }
@@ -3568,7 +3848,7 @@ function selectOfficial(id, el){
           <div class="oe-item" onclick='openTask(${JSON.stringify(e.id)})'>
             <span class="oe-id">${esc(e.id)}</span>
             <span class="oe-title">${esc(e.title.substring(0,35))}</span>
-            <span class="tag st-${e.state} oe-state">${STATE_LABEL[e.state]||e.state}</span>
+            <span class="tag ${stateTagClass(e.state)} oe-state">${stateLabel(e)}</span>
           </div>`).join('')}</div>`}
     </div>`;
 }
@@ -3600,7 +3880,7 @@ async function taskAction(taskId, action, reason){
   }catch(e){ toast('服务器连接失败','err'); }
 }
 
-/* ══ REVIEW ACTION (御批 批准/驳回) ══ */
+/* ══ REVIEW ACTION (审批 批准/驳回) ══ */
 async function reviewAction(taskId, action){
   const labels = {approve:'批准', reject:'驳回'};
   const comment = prompt(`${labels[action]} ${taskId}\n\n请输入批注（可留空）：`);
@@ -3613,10 +3893,11 @@ async function reviewAction(taskId, action){
 }
 
 /* ══ ADVANCE STATE (手动推进到下一步) - ClassBrainAI ══ */
-const _NEXT_LABELS = {Monitor:'学习委员规划', Study:'班委主席审议', Chair:'副班长派发', Assigned:'开始执行', Doing:'进入审查', Review:'完成', Technical:'进入审查', Organization:'进入审查'};
+const _NEXT_LABELS = {Pending:'班长分拣', Monitor:'学习委员规划', Study:'班委主席审议', Chair:'副班长派发', Assigned:'开始执行', Doing:'进入审查', Review:'完成'};
 async function advanceState(taskId, curState){
-  const next = _NEXT_LABELS[curState] || '下一步';
-  const comment = prompt(`⏩ 手动推进 ${taskId}\n当前: ${curState} → 下一步: ${next}\n\n请输入说明（可留空）：`);
+  const current = viewState(curState);
+  const next = _NEXT_LABELS[current] || '下一步';
+  const comment = prompt(`⏩ 手动推进 ${taskId}\n当前: ${STATE_LABEL[current]||current} → 下一步: ${next}\n\n请输入说明（可留空）：`);
   if(comment === null) return;
   try{
     const r = await postJ(API+'/advance-state', {taskId, comment: comment||''});
@@ -3658,8 +3939,8 @@ async function runGlobalSchedulerScan(){
   if(!btn) return;
   const oldText = btn.textContent;
   btn.disabled = true;
-  btn.textContent = '⟳ 巡检中...';
-  if(st) st.textContent = '巡检中...';
+  btn.textContent = '⟳ 检查中...';
+  if(st) st.textContent = '检查中...';
   try{
     const r = await postJ(API + '/scheduler-scan', {thresholdSec: 180});
     if(r.ok){
@@ -3668,13 +3949,13 @@ async function runGlobalSchedulerScan(){
       globalScanActions = Array.isArray(r.actions) ? r.actions : [];
       globalScanCheckedAt = String(r.checkedAt || '');
       globalScanCount = Number(count || 0);
-      if(st) st.textContent = `最近巡检: ${count} 个动作${at ? ' · ' + at : ''}`;
+      if(st) st.textContent = `最近检查: ${count} 个动作${at ? ' · ' + at : ''}`;
       if(detailBtn){
         detailBtn.style.display = globalScanActions.length ? 'inline-block' : 'none';
         if(!globalScanActions.length){
           globalScanDetailOpen = false;
           detailBtn.classList.remove('active');
-          detailBtn.textContent = '查看巡检详情';
+          detailBtn.textContent = '查看检查详情';
         }
       }
       if(copyBtn){
@@ -3682,14 +3963,14 @@ async function runGlobalSchedulerScan(){
       }
       persistGlobalScanState({checkedAt: r.checkedAt || '', count});
       renderGlobalScanDetails();
-      toast(`🧭 班长巡检完成：${count} 个动作`,'ok');
+      toast(`🧭 全局检查完成：${count} 个动作`,'ok');
       loadAll();
     }else{
-      if(st) st.textContent = '巡检失败';
-      toast(r.error || '巡检失败','err');
+      if(st) st.textContent = '检查失败';
+      toast(r.error || '检查失败','err');
     }
   }catch(e){
-    if(st) st.textContent = '巡检失败';
+    if(st) st.textContent = '检查失败';
     toast('服务器连接失败','err');
   }finally{
     btn.disabled = false;
@@ -3703,7 +3984,7 @@ function toggleGlobalScanDetails(){
   const btn = document.getElementById('btn-global-scan-detail');
   if(btn){
     btn.classList.toggle('active', globalScanDetailOpen);
-    btn.textContent = globalScanDetailOpen ? '收起巡检详情' : '查看巡检详情';
+    btn.textContent = globalScanDetailOpen ? '收起检查详情' : '查看检查详情';
   }
   persistGlobalScanState();
   renderGlobalScanDetails();
@@ -3737,13 +4018,13 @@ function buildGlobalScanReport(){
   const checked = globalScanCheckedAt ? globalScanCheckedAt.replace('T',' ').replace('Z','') : '未知时间';
   const count = Number(globalScanCount || globalScanActions.length || 0);
   const lines = [
-    '【班长巡检报告】',
+    '【全局检查报告】',
     `时间: ${checked}`,
     `动作数: ${count}`,
     '',
   ];
   if(!globalScanActions.length){
-    lines.push('本次巡检无动作。');
+    lines.push('本次检查无动作。');
     return lines.join('\n');
   }
   globalScanActions.forEach((a, idx)=>{
@@ -3760,7 +4041,7 @@ async function copyGlobalScanReport(){
   const report = buildGlobalScanReport();
   try{
     await navigator.clipboard.writeText(report);
-    toast('📋 巡检报告已复制','ok');
+    toast('📋 检查报告已复制','ok');
   }catch(_){
     const ta = document.createElement('textarea');
     ta.value = report;
@@ -3768,14 +4049,16 @@ async function copyGlobalScanReport(){
     ta.style.left = '-9999px';
     document.body.appendChild(ta);
     ta.select();
-    try{ document.execCommand('copy'); toast('📋 巡检报告已复制','ok'); }
+    try{ document.execCommand('copy'); toast('📋 检查报告已复制','ok'); }
     catch(__){ toast('复制失败，请手动复制','err'); }
     ta.remove();
   }
 }
 
 /* ══ TABS ══ */
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+function goTab(tabName){
+  const t = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  if(!t) return;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');activeTab=t.dataset.tab;
@@ -3787,7 +4070,26 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   if(activeTab==='sessions')renderSessions(liveStatus?liveStatus.tasks:[]);
   if(activeTab==='memorials')renderMemorials();
   if(activeTab==='templates')renderTemplates();
-}));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>goTab(t.dataset.tab)));
+
+async function commandAction(kind){
+  if(kind==='scan'){ await runGlobalSchedulerScan(); goTab('edicts'); return; }
+  if(kind==='templates'){ goTab('templates'); return; }
+  if(kind==='monitor'){ goTab('monitor'); await loadAgentsStatus(); return; }
+  if(kind==='refresh'){ await loadAll(); toast('✅ 工作台已完成全局同步','ok'); return; }
+}
+
+function updateCommandTicker(){
+  const el = document.getElementById('cmd-ticker');
+  if(!el || !liveStatus) return;
+  const tasks = liveStatus.tasks || [];
+  const total = tasks.filter(isEdict).length;
+  const active = tasks.filter(t=>isEdict(t) && !['Done','Cancelled'].includes(viewState(t.state))).length;
+  const blocked = tasks.filter(t=>isEdict(t) && viewState(t.state)==='Blocked').length;
+  const queued = tasks.filter(t=>isEdict(t) && ['Pending','Monitor','Study','Chair','Assigned'].includes(viewState(t.state))).length;
+  el.textContent = `任务快照：总任务 ${total} · 进行中 ${active} · 阻塞 ${blocked} · 待推进 ${queued}`;
+}
 
 /* ══ COUNTDOWN (5s) ══ */
 function startCd(){
@@ -3802,7 +4104,7 @@ function startCd(){
 /* ══ KEY ══ */
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal-bg').classList.remove('open')});
 
-/* ══ COURT CEREMONY (上朝仪式感) ══ */
+/* ══ CLASSROOM CEREMONY (课堂开场) ══ */
 function showCeremony(){
   const lastOpen = localStorage.getItem('openclaw_court_date');
   const today = new Date().toISOString().substring(0,10);
@@ -3813,10 +4115,10 @@ function showCeremony(){
   el.style.display='flex';
   // Fill data from live status
   const tasks = liveStatus ? (liveStatus.tasks||[]) : [];
-  const jjc = tasks.filter(t=>(t.id||'').startsWith('JJC-'));
-  const pending = jjc.filter(t=>!['Done','Cancelled'].includes(t.state)).length;
-  const done = jjc.filter(t=>t.state==='Done').length;
-  const overdue = jjc.filter(t=>t.state!=='Done'&&t.state!=='Cancelled'&&t.eta&&new Date(t.eta.replace(' ','T'))<new Date()).length;
+  const edicts = tasks.filter(isEdict);
+  const pending = edicts.filter(t=>!['Done','Cancelled'].includes(viewState(t.state))).length;
+  const done = edicts.filter(t=>viewState(t.state)==='Done').length;
+  const overdue = edicts.filter(t=>viewState(t.state)!=='Done'&&viewState(t.state)!=='Cancelled'&&t.eta&&new Date(t.eta.replace(' ','T'))<new Date()).length;
   document.getElementById('crm-l3').textContent = `待办 ${pending} 件 · 已完成 ${done} 件` + (overdue?` · ⚠ 超期 ${overdue} 件`:'');
   // Date line
   const d = new Date();
@@ -3841,9 +4143,9 @@ function skipCeremony(){
 function renderMemorials(){
   const tasks = liveStatus ? (liveStatus.tasks||[]) : [];
   const filter = (document.getElementById('mem-filter')||{}).value || 'all';
-  // Only JJC edicts that are Done or Cancelled
-  let mems = tasks.filter(t=>(t.id||'').startsWith('JJC-') && ['Done','Cancelled'].includes(t.state));
-  if(filter!=='all') mems = mems.filter(t=>t.state===filter);
+  // 仅展示任务中已结束项（兼容历史 ID 前缀）
+  let mems = tasks.filter(t=>isEdict(t) && ['Done','Cancelled'].includes(viewState(t.state)));
+  if(filter!=='all') mems = mems.filter(t=>viewState(t.state)===filter);
   document.getElementById('tb-mem').textContent = mems.length;
 
   const el = document.getElementById('mem-list');
@@ -3854,7 +4156,7 @@ function renderMemorials(){
     const depts = [...new Set(fl.map(f=>f.from).concat(fl.map(f=>f.to)).filter(x=>x&&x!=='班主任'))];
     const firstAt = fl.length ? (fl[0].at||'').substring(0,16).replace('T',' ') : '';
     const lastAt = fl.length ? (fl[fl.length-1].at||'').substring(0,16).replace('T',' ') : '';
-    const stIcon = t.state==='Done'?'✅':'🚫';
+    const stIcon = viewState(t.state)==='Done'?'✅':'🚫';
     return `<div class="mem-card" onclick='openMemorial(${JSON.stringify(JSON.stringify(t))})'>
       <div class="mem-icon">📝</div>
       <div class="mem-info">
@@ -4081,7 +4383,7 @@ function renderTemplates(){
       <div class="tpl-footer">
         ${t.depts.map(d=>`<span class="tpl-dept">${esc(d)}</span>`).join('')}
         <span class="tpl-est">${esc(t.est)} · ${esc(t.cost)}</span>
-        <button class="tpl-go" onclick="openTemplateForm('${t.id}')">下旨</button>
+        <button class="tpl-go" onclick="openTemplateForm('${t.id}')">创建任务</button>
       </div>
     </div>
   `).join('');
@@ -4108,7 +4410,7 @@ function openTemplateForm(tplId){
       <div id="tpl-preview" style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted);display:none"></div>
       <div style="display:flex;gap:10px;justify-content:flex-end">
         <button type="button" class="btn btn-g" onclick="previewTemplate('${t.id}')" style="padding:8px 16px;font-size:12px">👁 预览任务</button>
-        <button type="submit" class="tpl-go" style="padding:8px 20px;font-size:13px">📜 下旨</button>
+        <button type="submit" class="tpl-go" style="padding:8px 20px;font-size:13px">📝 发布任务</button>
       </div>
     </form>
   `;
@@ -4150,7 +4452,7 @@ async function executeTemplate(e, tplId){
   }catch(ex){/* 检测失败不阻塞创建 */}
 
   // Show the generated command in a confirmation
-  if(!confirm(`确认下旨？\n\n${cmd.substring(0,200)}${cmd.length>200?'…':''}`)) return;
+  if(!confirm(`确认发布任务？\n\n${cmd.substring(0,200)}${cmd.length>200?'…':''}`)) return;
   // 通过 API 创建真实任务
   try{
     const params = {};
@@ -4171,7 +4473,7 @@ async function executeTemplate(e, tplId){
       closeModal();
       loadAll();
     } else {
-      toast(r.error||'下旨失败','err');
+      toast(r.error||'任务发布失败','err');
     }
   }catch(err){
     // 降级：复制到剪贴板
@@ -4183,7 +4485,7 @@ async function executeTemplate(e, tplId){
 
 /* ══ INIT ══ */
 restoreGlobalScanState();
-loadAll().then(()=>showCeremony());
+loadAll().then(()=>{showCeremony(); updateCommandTicker();});
 startCd();
 </script>
 </body>

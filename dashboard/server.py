@@ -21,7 +21,7 @@ scripts_dir = str(pathlib.Path(__file__).parent.parent / 'scripts')
 sys.path.insert(0, scripts_dir)
 from file_lock import atomic_json_read, atomic_json_write, atomic_json_update
 from utils import validate_url, read_json, now_iso
-from court_discuss import (
+from classroom_discuss import (
     create_session as cd_create, advance_discussion as cd_advance,
     get_session as cd_get, conclude_session as cd_conclude,
     list_sessions as cd_list, destroy_session as cd_destroy,
@@ -44,6 +44,24 @@ BASE = pathlib.Path(__file__).parent
 DIST = BASE / 'dist'          # React 构建产物 (npm run build)
 DATA = BASE.parent / "data"
 SCRIPTS = BASE.parent / 'scripts'
+
+_CANONICAL_STATES = {
+    'Pending', 'Monitor', 'Study', 'Chair', 'Assigned',
+    'Doing', 'Review', 'Done', 'Blocked', 'Cancelled',
+}
+_STATE_ORG_DEFAULTS = {
+    'Pending': '班主任',
+    'Monitor': '班长',
+    'Study': '学习委员',
+    'Chair': '班委主席',
+    'Assigned': '副班长',
+    'Doing': '各班委',
+    'Review': '副班长',
+    'Done': '完成',
+    'Blocked': '阻塞',
+    'Cancelled': '取消',
+}
+_ORG_PLACEHOLDERS = {'', '-', '执行中', '阻塞', '完成', '待执行', '收件', '待处理'}
 
 # 静态资源 MIME 类型
 _MIME_TYPES = {
@@ -77,11 +95,78 @@ def cors_headers(h):
     h.send_header('Access-Control-Allow-Headers', 'Content-Type')
 
 
+def _normalize_state(state):
+    if not isinstance(state, str):
+        return 'Pending'
+    s = state.strip()
+    if not s:
+        return 'Pending'
+    if s in _CANONICAL_STATES:
+        return s
+    return 'Pending'
+
+
+def _normalize_task_state(task):
+    if not isinstance(task, dict):
+        return False
+    changed = False
+    raw_state = task.get('state', 'Pending')
+    canon_state = _normalize_state(raw_state)
+    if raw_state != canon_state:
+        task['state'] = canon_state
+        changed = True
+
+    prev_state = task.get('_prev_state')
+    if prev_state:
+        prev_canon = _normalize_state(prev_state)
+        if prev_canon != prev_state:
+            task['_prev_state'] = prev_canon
+            changed = True
+
+    sched = task.get('_scheduler')
+    if isinstance(sched, dict):
+        snap = sched.get('snapshot')
+        if isinstance(snap, dict):
+            snap_state = snap.get('state')
+            snap_canon = _normalize_state(snap_state)
+            if snap_state != snap_canon:
+                snap['state'] = snap_canon
+                changed = True
+
+    org = task.get('org', '')
+    if canon_state in _STATE_ORG_DEFAULTS:
+        should_reset_org = False
+        if not isinstance(org, str) or org.strip() in _ORG_PLACEHOLDERS:
+            should_reset_org = True
+        if should_reset_org:
+            target_org = _STATE_ORG_DEFAULTS[canon_state]
+            if org != target_org:
+                task['org'] = target_org
+                changed = True
+
+    return changed
+
+
+def _normalize_tasks(tasks):
+    changed = False
+    if not isinstance(tasks, list):
+        return [], True
+    for task in tasks:
+        if _normalize_task_state(task):
+            changed = True
+    return tasks, changed
+
+
 def load_tasks():
-    return atomic_json_read(DATA / 'tasks_source.json', [])
+    tasks = atomic_json_read(DATA / 'tasks_source.json', [])
+    tasks, changed = _normalize_tasks(tasks)
+    if changed:
+        atomic_json_write(DATA / 'tasks_source.json', tasks)
+    return tasks
 
 
 def save_tasks(tasks):
+    tasks, _ = _normalize_tasks(tasks)
     atomic_json_write(DATA / 'tasks_source.json', tasks)
     # Trigger refresh (异步，不阻塞，避免僵尸进程)
     def _refresh():
@@ -152,7 +237,7 @@ def handle_archive_task(task_id, archived, archive_all_done=False):
                 t['archivedAt'] = now_iso()
                 count += 1
         save_tasks(tasks)
-        return {'ok': True, 'message': f'{count} 道旨意已归档', 'count': count}
+        return {'ok': True, 'message': f'{count} 条任务已归档', 'count': count}
     task = next((t for t in tasks if t.get('id') == task_id), None)
     if not task:
         return {'ok': False, 'error': f'任务 {task_id} 不存在'}
@@ -519,7 +604,7 @@ def push_to_feishu():
         print(f'[飞书] 推送失败: {e}', file=sys.stderr)
 
 
-# 旨意标题最低要求
+# 任务标题最低要求
 _MIN_TITLE_LEN = 6
 _JUNK_TITLES = {
     '?', '？', '好', '好的', '是', '否', '不', '不是', '对', '了解', '收到',
@@ -528,23 +613,23 @@ _JUNK_TITLES = {
 }
 
 
-def handle_create_task(title, org='学习委员', official='中书令', priority='normal', template_id='', params=None, target_dept=''):
-    """从看板创建新任务（圣旨模板下旨）。"""
+def handle_create_task(title, org='学习委员', official='班主任', priority='normal', template_id='', params=None, target_dept=''):
+    """从看板创建新任务。"""
     if not title or not title.strip():
         return {'ok': False, 'error': '任务标题不能为空'}
     title = title.strip()
     # 剥离 Conversation info 元数据
     title = re.split(r'\n*Conversation info\s*\(', title, maxsplit=1)[0].strip()
     title = re.split(r'\n*```', title, maxsplit=1)[0].strip()
-    # 清理常见前缀: "传旨:" "下旨:" 等
-    title = re.sub(r'^(传旨|下旨)[：:\uff1a]\s*', '', title)
+    # 清理常见前缀: "传达:" "发布任务:" "发布任务:" 等
+    title = re.sub(r'^(传达|发布任务|发布任务)[：:\uff1a]\s*', '', title)
     if len(title) > 100:
         title = title[:100] + '…'
-    # 标题质量校验：防止闲聊被误建为旨意
+    # 标题质量校验：防止闲聊被误建为任务
     if len(title) < _MIN_TITLE_LEN:
-        return {'ok': False, 'error': f'标题过短（{len(title)}<{_MIN_TITLE_LEN}字），不像是旨意'}
+        return {'ok': False, 'error': f'标题过短（{len(title)}<{_MIN_TITLE_LEN}字），不像是任务'}
     if title.lower() in _JUNK_TITLES:
-        return {'ok': False, 'error': f'「{title}」不是有效旨意，请输入具体工作指令'}
+        return {'ok': False, 'error': f'「{title}」不是有效任务，请输入具体工作指令'}
     # 生成 task id: JJC-YYYYMMDD-NNN
     today = datetime.datetime.now().strftime('%Y%m%d')
     tasks = load_tasks()
@@ -562,8 +647,8 @@ def handle_create_task(title, org='学习委员', official='中书令', priority
         'title': title,
         'official': official,
         'org': initial_org,
-        'state': 'Taizi',
-        'now': '等待班长接旨分拣',
+        'state': 'Monitor',
+        'now': '等待班长分拣',
         'eta': '-',
         'block': '无',
         'output': '',
@@ -575,7 +660,7 @@ def handle_create_task(title, org='学习委员', official='中书令', priority
             'at': now_iso(),
             'from': '班主任',
             'to': initial_org,
-            'remark': f'下旨：{title}'
+            'remark': f'任务创建：{title}'
         }],
         'updatedAt': now_iso(),
     }
@@ -590,40 +675,42 @@ def handle_create_task(title, org='学习委员', official='中书令', priority
     save_tasks(tasks)
     log.info(f'创建任务: {task_id} | {title[:40]}')
 
-    dispatch_for_state(task_id, new_task, 'Taizi', trigger='imperial-edict')
+    dispatch_for_state(task_id, new_task, 'Monitor', trigger='task-created')
 
-    return {'ok': True, 'taskId': task_id, 'message': f'旨意 {task_id} 已下达，正在派发给班长'}
+    return {'ok': True, 'taskId': task_id, 'message': f'任务 {task_id} 已创建，正在派发给班长'}
 
 
 def handle_review_action(task_id, action, comment=''):
-    """班委主席御批：准奏/封驳。"""
+    """班委主席审批：批准/驳回。"""
     tasks = load_tasks()
     task = next((t for t in tasks if t.get('id') == task_id), None)
     if not task:
         return {'ok': False, 'error': f'任务 {task_id} 不存在'}
-    if task.get('state') not in ('Review', 'Menxia'):
-        return {'ok': False, 'error': f'任务 {task_id} 当前状态为 {task.get("state")}，无法御批'}
+    cur_state = _normalize_state(task.get('state'))
+    if cur_state not in ('Review', 'Chair'):
+        return {'ok': False, 'error': f'任务 {task_id} 当前状态为 {task.get("state")}，无法审批'}
+    task['state'] = cur_state
 
     _ensure_scheduler(task)
     _scheduler_snapshot(task, f'review-before-{action}')
 
     if action == 'approve':
-        if task['state'] == 'Menxia':
+        if task['state'] == 'Chair':
             task['state'] = 'Assigned'
-            task['now'] = '班委主席准奏，移交副班长派发'
-            remark = f'✅ 准奏：{comment or "班委主席审议通过"}'
+            task['now'] = '班委主席审批通过，移交副班长派发'
+            remark = f'✅ 批准：{comment or "班委主席审议通过"}'
             to_dept = '副班长'
         else:  # Review
             task['state'] = 'Done'
-            task['now'] = '御批通过，任务完成'
-            remark = f'✅ 御批准奏：{comment or "审查通过"}'
+            task['now'] = '审批通过，任务完成'
+            remark = f'✅ 批准：{comment or "审查通过"}'
             to_dept = '班主任'
     elif action == 'reject':
         round_num = (task.get('review_round') or 0) + 1
         task['review_round'] = round_num
-        task['state'] = 'Zhongshu'
-        task['now'] = f'封驳退回学习委员修订（第{round_num}轮）'
-        remark = f'🚫 封驳：{comment or "需要修改"}'
+        task['state'] = 'Study'
+        task['now'] = f'驳回退回学习委员修订（第{round_num}轮）'
+        remark = f'🚫 驳回：{comment or "需要修改"}'
         to_dept = '学习委员'
     else:
         return {'ok': False, 'error': f'未知操作: {action}'}
@@ -643,7 +730,7 @@ def handle_review_action(task_id, action, comment=''):
     if new_state not in ('Done',):
         dispatch_for_state(task_id, task, new_state)
 
-    label = '已准奏' if action == 'approve' else '已封驳'
+    label = '已批准' if action == 'approve' else '已驳回'
     dispatched = ' (已自动派发 Agent)' if new_state != 'Done' else ''
     return {'ok': True, 'message': f'{task_id} {label}{dispatched}'}
 
@@ -651,18 +738,23 @@ def handle_review_action(task_id, action, comment=''):
 # ══ Agent 在线状态检测 ══
 
 _AGENT_DEPTS = [
-    {'id':'taizi',   'label':'班长',  'emoji':'🤴', 'role':'班长',     'rank':'储君'},
-    {'id':'zhongshu','label':'学习委员','emoji':'📜', 'role':'中书令',   'rank':'正一品'},
-    {'id':'menxia',  'label':'班委主席','emoji':'🔍', 'role':'侍中',     'rank':'正一品'},
-    {'id':'shangshu','label':'副班长','emoji':'📮', 'role':'尚书令',   'rank':'正一品'},
-    {'id':'hubu',    'label':'户部',  'emoji':'💰', 'role':'户部尚书', 'rank':'正二品'},
-    {'id':'libu',    'label':'礼部',  'emoji':'📝', 'role':'礼部尚书', 'rank':'正二品'},
-    {'id':'bingbu',  'label':'兵部',  'emoji':'⚔️', 'role':'兵部尚书', 'rank':'正二品'},
-    {'id':'xingbu',  'label':'刑部',  'emoji':'⚖️', 'role':'刑部尚书', 'rank':'正二品'},
-    {'id':'gongbu',  'label':'工部',  'emoji':'🔧', 'role':'工部尚书', 'rank':'正二品'},
-    {'id':'libu_hr', 'label':'吏部',  'emoji':'👔', 'role':'吏部尚书', 'rank':'正二品'},
-    {'id':'zaochao', 'label':'钦天监','emoji':'📰', 'role':'朝报官',   'rank':'正三品'},
+    {'id':'classbrain-monitor', 'label':'班长', 'emoji':'👤', 'role':'班长', 'rank':'核心'},
+    {'id':'classbrain-study', 'label':'学习委员', 'emoji':'📚', 'role':'学习委员', 'rank':'核心'},
+    {'id':'classbrain-chair', 'label':'班委主席', 'emoji':'👨‍💼', 'role':'班委主席', 'rank':'核心'},
+    {'id':'classbrain-vice', 'label':'副班长', 'emoji':'📋', 'role':'副班长', 'rank':'核心'},
+    {'id':'classbrain-technical', 'label':'技术委员', 'emoji':'💻', 'role':'技术委员', 'rank':'班委'},
+    {'id':'classbrain-logistics', 'label':'后勤委员', 'emoji':'🧰', 'role':'后勤委员', 'rank':'班委'},
+    {'id':'classbrain-finance', 'label':'生活委员', 'emoji':'💰', 'role':'生活委员', 'rank':'班委'},
+    {'id':'classbrain-arts', 'label':'文艺委员', 'emoji':'🎨', 'role':'文艺委员', 'rank':'班委'},
+    {'id':'classbrain-discipline', 'label':'纪律委员', 'emoji':'📏', 'role':'纪律委员', 'rank':'班委'},
+    {'id':'classbrain-organization', 'label':'组织委员', 'emoji':'🧩', 'role':'组织委员', 'rank':'班委'},
+    {'id':'classbrain-morning', 'label':'早读委员', 'emoji':'🌅', 'role':'早读委员', 'rank':'班委'},
 ]
+
+
+def _workspace_exists(agent_id):
+    ws = OCLAW_HOME / f'workspace-{agent_id}'
+    return ws.is_dir()
 
 
 def _check_gateway_alive():
@@ -689,25 +781,24 @@ def _get_agent_session_status(agent_id):
     """读取 Agent 的 sessions.json 获取活跃状态。
     返回: (last_active_ts_ms, session_count, is_busy)
     """
+    best_ts = 0
+    total_sessions = 0
     sessions_file = OCLAW_HOME / 'agents' / agent_id / 'sessions' / 'sessions.json'
-    if not sessions_file.exists():
-        return 0, 0, False
-    try:
-        data = json.loads(sessions_file.read_text())
-        if not isinstance(data, dict):
-            return 0, 0, False
-        session_count = len(data)
-        last_ts = 0
-        for v in data.values():
-            ts = v.get('updatedAt', 0)
-            if isinstance(ts, (int, float)) and ts > last_ts:
-                last_ts = ts
-        now_ms = int(datetime.datetime.now().timestamp() * 1000)
-        age_ms = now_ms - last_ts if last_ts else 9999999999
-        is_busy = age_ms <= 2 * 60 * 1000  # 2分钟内视为正在工作
-        return last_ts, session_count, is_busy
-    except Exception:
-        return 0, 0, False
+    if sessions_file.exists():
+        try:
+            data = json.loads(sessions_file.read_text())
+            if isinstance(data, dict):
+                total_sessions = len(data)
+                for v in data.values():
+                    ts = v.get('updatedAt', 0)
+                    if isinstance(ts, (int, float)) and ts > best_ts:
+                        best_ts = ts
+        except Exception:
+            pass
+    now_ms = int(datetime.datetime.now().timestamp() * 1000)
+    age_ms = now_ms - best_ts if best_ts else 9999999999
+    is_busy = age_ms <= 2 * 60 * 1000  # 2分钟内视为正在工作
+    return best_ts, total_sessions, is_busy
 
 
 def _check_agent_process(agent_id):
@@ -724,8 +815,7 @@ def _check_agent_process(agent_id):
 
 def _check_agent_workspace(agent_id):
     """检查 Agent 工作空间是否存在。"""
-    ws = OCLAW_HOME / f'workspace-{agent_id}'
-    return ws.is_dir()
+    return _workspace_exists(agent_id)
 
 
 def get_agents_status():
@@ -800,6 +890,7 @@ def get_agents_status():
             'sessions': sess_count,
             'hasWorkspace': has_workspace,
             'processAlive': process_alive,
+            'runtimeId': aid,
         })
 
     return {
@@ -823,7 +914,6 @@ def wake_agent(agent_id, message=''):
     if not _check_gateway_alive():
         return {'ok': False, 'error': 'Gateway 未启动，请先运行 openclaw gateway start'}
 
-    # agent_id 直接作为 runtime_id（openclaw agents list 中的注册名）
     runtime_id = agent_id
     msg = message or f'🔔 系统心跳检测 — 请回复 OK 确认在线。当前时间: {now_iso()}'
 
@@ -856,19 +946,25 @@ def wake_agent(agent_id, message=''):
 
 # 状态 → agent_id 映射
 _STATE_AGENT_MAP = {
-    'Taizi': 'taizi',
-    'Zhongshu': 'zhongshu',
-    'Menxia': 'menxia',
-    'Assigned': 'shangshu',
+    'Monitor': 'classbrain-monitor',
+    'Study': 'classbrain-study',
+    'Chair': 'classbrain-chair',
+    'Assigned': 'classbrain-vice',
     'Doing': None,         # 各班委，需从 org 推断
-    'Review': 'shangshu',
-    'Next': None,          # 待执行，从 org 推断
-    'Pending': 'zhongshu', # 待处理，默认学习委员
+    'Review': 'classbrain-vice',
+    'Pending': 'classbrain-monitor',    # 待处理优先交给班长
 }
 _ORG_AGENT_MAP = {
-    '礼部': 'libu', '户部': 'hubu', '兵部': 'bingbu',
-    '刑部': 'xingbu', '工部': 'gongbu', '吏部': 'libu_hr',
-    '学习委员': 'zhongshu', '班委主席': 'menxia', '副班长': 'shangshu',
+    '学习委员': 'classbrain-study',
+    '班委主席': 'classbrain-chair',
+    '副班长': 'classbrain-vice',
+    '技术委员': 'classbrain-technical',
+    '后勤委员': 'classbrain-logistics',
+    '生活委员': 'classbrain-finance',
+    '文艺委员': 'classbrain-arts',
+    '纪律委员': 'classbrain-discipline',
+    '组织委员': 'classbrain-organization',
+    '早读委员': 'classbrain-morning',
 }
 
 _TERMINAL_STATES = {'Done', 'Cancelled'}
@@ -988,12 +1084,12 @@ def handle_scheduler_retry(task_id, reason=''):
     sched = _ensure_scheduler(task)
     sched['retryCount'] = int(sched.get('retryCount') or 0) + 1
     sched['lastRetryAt'] = now_iso()
-    sched['lastDispatchTrigger'] = 'taizi-retry'
+    sched['lastDispatchTrigger'] = 'scheduler-retry'
     _scheduler_add_flow(task, f'触发重试第{sched["retryCount"]}次：{reason or "超时未推进"}')
     task['updatedAt'] = now_iso()
     save_tasks(tasks)
 
-    dispatch_for_state(task_id, task, state, trigger='taizi-retry')
+    dispatch_for_state(task_id, task, state, trigger='scheduler-retry')
     return {'ok': True, 'message': f'{task_id} 已触发重试派发', 'retryCount': sched['retryCount']}
 
 
@@ -1009,7 +1105,7 @@ def handle_scheduler_escalate(task_id, reason=''):
     sched = _ensure_scheduler(task)
     current_level = int(sched.get('escalationLevel') or 0)
     next_level = min(current_level + 1, 2)
-    target = 'menxia' if next_level == 1 else 'shangshu'
+    target = 'classbrain-chair' if next_level == 1 else 'classbrain-vice'
     target_label = '班委主席' if next_level == 1 else '副班长'
 
     sched['escalationLevel'] = next_level
@@ -1056,7 +1152,7 @@ def handle_scheduler_rollback(task_id, reason=''):
     save_tasks(tasks)
 
     if snap_state not in _TERMINAL_STATES:
-        dispatch_for_state(task_id, task, snap_state, trigger='taizi-rollback')
+        dispatch_for_state(task_id, task, snap_state, trigger='scheduler-rollback')
 
     return {'ok': True, 'message': f'{task_id} 已回滚到 {snap_state}'}
 
@@ -1099,7 +1195,7 @@ def handle_scheduler_scan(threshold_sec=600):
         if retry_count < max_retry:
             sched['retryCount'] = retry_count + 1
             sched['lastRetryAt'] = now_iso()
-            sched['lastDispatchTrigger'] = 'taizi-scan-retry'
+            sched['lastDispatchTrigger'] = 'scheduler-scan-retry'
             _scheduler_add_flow(task, f'停滞{stalled_sec}秒，触发自动重试第{sched["retryCount"]}次')
             pending_retries.append((task_id, state))
             actions.append({'taskId': task_id, 'action': 'retry', 'stalledSec': stalled_sec})
@@ -1108,7 +1204,7 @@ def handle_scheduler_scan(threshold_sec=600):
 
         if level < 2:
             next_level = level + 1
-            target = 'menxia' if next_level == 1 else 'shangshu'
+            target = 'classbrain-chair' if next_level == 1 else 'classbrain-vice'
             target_label = '班委主席' if next_level == 1 else '副班长'
             sched['escalationLevel'] = next_level
             sched['lastEscalatedAt'] = now_iso()
@@ -1142,7 +1238,7 @@ def handle_scheduler_scan(threshold_sec=600):
     for task_id, state in pending_retries:
         retry_task = next((t for t in tasks if t.get('id') == task_id), None)
         if retry_task:
-            dispatch_for_state(task_id, retry_task, state, trigger='taizi-scan-retry')
+            dispatch_for_state(task_id, retry_task, state, trigger='scheduler-scan-retry')
 
     for task_id, state, target, target_label, stalled_sec in pending_escalates:
         msg = (
@@ -1158,7 +1254,7 @@ def handle_scheduler_scan(threshold_sec=600):
     for task_id, state in pending_rollbacks:
         rollback_task = next((t for t in tasks if t.get('id') == task_id), None)
         if rollback_task and state not in _TERMINAL_STATES:
-            dispatch_for_state(task_id, rollback_task, state, trigger='taizi-auto-rollback')
+            dispatch_for_state(task_id, rollback_task, state, trigger='scheduler-auto-rollback')
 
     return {
         'ok': True,
@@ -1211,13 +1307,13 @@ def handle_repair_flow_order():
 
         first['to'] = '班长'
         remark = first.get('remark', '')
-        if isinstance(remark, str) and remark.startswith('下旨：'):
+        if isinstance(remark, str) and (remark.startswith('发布任务：') or remark.startswith('任务创建：')):
             first['remark'] = remark
 
-        if task.get('state') == 'Zhongshu' and task.get('org') == '学习委员' and len(flow_log) == 1:
-            task['state'] = 'Taizi'
+        if _normalize_state(task.get('state')) == 'Study' and task.get('org') == '学习委员' and len(flow_log) == 1:
+            task['state'] = 'Monitor'
             task['org'] = '班长'
-            task['now'] = '等待班长接旨分拣'
+            task['now'] = '等待班长分拣'
 
         task['updatedAt'] = now_iso()
         fixed += 1
@@ -1657,7 +1753,7 @@ def get_task_activity(task_id):
 
     # 当前负责 Agent（兼容旧逻辑）
     agent_id = _STATE_AGENT_MAP.get(state)
-    if agent_id is None and state in ('Doing', 'Next'):
+    if agent_id is None and state == 'Doing':
         agent_id = _ORG_AGENT_MAP.get(org)
 
     # ── 构建活动条目列表（flow_log + progress_log）──
@@ -1864,39 +1960,41 @@ def get_task_activity(task_id):
 
 # 状态推进顺序（手动推进用）
 _STATE_FLOW = {
-    'Pending':  ('Taizi', '班主任', '班长', '待处理旨意转交班长分拣'),
-    'Taizi':    ('Zhongshu', '班长', '学习委员', '班长分拣完毕，转学习委员起草'),
-    'Zhongshu': ('Menxia', '学习委员', '班委主席', '学习委员方案提交班委主席审议'),
-    'Menxia':   ('Assigned', '班委主席', '副班长', '班委主席准奏，转副班长派发'),
+    'Pending':  ('Monitor', '班主任', '班长', '待处理任务转交班长分拣'),
+    'Monitor':  ('Study', '班长', '学习委员', '班长分拣完毕，转学习委员起草'),
+    'Study':    ('Chair', '学习委员', '班委主席', '学习委员方案提交班委主席审议'),
+    'Chair':    ('Assigned', '班委主席', '副班长', '班委主席审批通过，转副班长派发'),
     'Assigned': ('Doing', '副班长', '各班委', '副班长开始派发执行'),
-    'Next':     ('Doing', '副班长', '各班委', '待执行任务开始执行'),
     'Doing':    ('Review', '各班委', '副班长', '各部完成，进入汇总'),
     'Review':   ('Done', '副班长', '班长', '全流程完成，回奏班长转报班主任'),
 }
 _STATE_LABELS = {
-    'Pending': '待处理', 'Taizi': '班长', 'Zhongshu': '学习委员', 'Menxia': '班委主席',
-    'Assigned': '副班长', 'Next': '待执行', 'Doing': '执行中', 'Review': '审查', 'Done': '完成',
+    'Pending': '待处理', 'Monitor': '班长', 'Study': '学习委员', 'Chair': '班委主席',
+    'Assigned': '副班长', 'Doing': '执行中', 'Review': '审查', 'Done': '完成',
+    'Blocked': '已暂停', 'Cancelled': '已取消',
 }
 
 
 def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
     """推进/审批后自动派发对应 Agent（后台异步，不阻塞响应）。"""
     agent_id = _STATE_AGENT_MAP.get(new_state)
-    if agent_id is None and new_state in ('Doing', 'Next'):
+    if agent_id is None and new_state == 'Doing':
         org = task.get('org', '')
         agent_id = _ORG_AGENT_MAP.get(org)
     if not agent_id:
         log.info(f'ℹ️ {task_id} 新状态 {new_state} 无对应 Agent，跳过自动派发')
         return
+    runtime_id = agent_id
 
     _update_task_scheduler(task_id, lambda t, s: (
         s.update({
             'lastDispatchAt': now_iso(),
             'lastDispatchStatus': 'queued',
-            'lastDispatchAgent': agent_id,
+            'lastDispatchAgent': runtime_id,
+            'lastDispatchAgentLogical': agent_id,
             'lastDispatchTrigger': trigger,
         }),
-        _scheduler_add_flow(t, f'已入队派发：{new_state} → {agent_id}（{trigger}）', to=_STATE_LABELS.get(new_state, new_state))
+        _scheduler_add_flow(t, f'已入队派发：{new_state} → {runtime_id}（{trigger}）', to=_STATE_LABELS.get(new_state, new_state))
     ))
 
     title = task.get('title', '(无标题)')
@@ -1904,31 +2002,31 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
 
     # 根据 agent_id 构造针对性消息
     _msgs = {
-        'taizi': (
-            f'📜 班主任旨意需要你处理\n'
+        'classbrain-monitor': (
+            f'📌 班主任任务需要你处理\n'
             f'任务ID: {task_id}\n'
-            f'旨意: {title}\n'
-            f'⚠️ 看板已有此任务，请勿重复创建。直接用 kanban_update.py 更新状态。\n'
+            f'任务: {title}\n'
+            f'⚠️ 看板已有此任务，请勿重复创建。直接更新任务状态。\n'
             f'请立即转交学习委员起草执行方案。'
         ),
-        'zhongshu': (
-            f'📜 旨意已到学习委员，请起草方案\n'
+        'classbrain-study': (
+            f'📌 任务已到学习委员，请起草方案\n'
             f'任务ID: {task_id}\n'
-            f'旨意: {title}\n'
-            f'⚠️ 看板已有此任务记录，请勿重复创建。直接用 kanban_update.py state 更新状态。\n'
-            f'请立即起草执行方案，走完完整三省流程（中书起草→门下审议→尚书派发→各班委执行）。'
+            f'任务: {title}\n'
+            f'⚠️ 看板已有此任务记录，请勿重复创建。\n'
+            f'请立即起草执行方案，并提交班委主席审议。'
         ),
-        'menxia': (
+        'classbrain-chair': (
             f'📋 学习委员方案提交审议\n'
             f'任务ID: {task_id}\n'
-            f'旨意: {title}\n'
+            f'任务: {title}\n'
             f'⚠️ 看板已有此任务，请勿重复创建。\n'
-            f'请审议学习委员方案，给出准奏或封驳意见。'
+            f'请审议学习委员方案，给出批准或驳回意见。'
         ),
-        'shangshu': (
-            f'📮 班委主席已准奏，请派发执行\n'
+        'classbrain-vice': (
+            f'📮 班委主席已审批通过，请派发执行\n'
             f'任务ID: {task_id}\n'
-            f'旨意: {title}\n'
+            f'任务: {title}\n'
             f'{"建议派发部门: " + target_dept if target_dept else ""}\n'
             f'⚠️ 看板已有此任务，请勿重复创建。\n'
             f'请分析方案并派发给各班委执行。'
@@ -1937,8 +2035,8 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
     msg = _msgs.get(agent_id, (
         f'📌 请处理任务\n'
         f'任务ID: {task_id}\n'
-        f'旨意: {title}\n'
-        f'⚠️ 看板已有此任务，请勿重复创建。直接用 kanban_update.py 更新状态。'
+        f'任务: {title}\n'
+        f'⚠️ 看板已有此任务，请勿重复创建。直接更新任务状态。'
     ))
 
     def _do_dispatch():
@@ -1948,31 +2046,33 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                 _update_task_scheduler(task_id, lambda t, s: s.update({
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'gateway-offline',
-                    'lastDispatchAgent': agent_id,
+                    'lastDispatchAgent': runtime_id,
+                    'lastDispatchAgentLogical': agent_id,
                     'lastDispatchTrigger': trigger,
                 }))
                 return
             # Fix #139: dispatch channel 可配置（默认 feishu，支持 telegram/wecom/signal 等）
             _agent_cfg = read_json(DATA / 'agent_config.json', {})
             _channel = (_agent_cfg.get('dispatchChannel') or 'feishu').strip()
-            cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', msg,
+            cmd = ['openclaw', 'agent', '--agent', runtime_id, '-m', msg,
                    '--deliver', '--channel', _channel, '--timeout', '300']
             max_retries = 2
             err = ''
             for attempt in range(1, max_retries + 1):
-                log.info(f'🔄 自动派发 {task_id} → {agent_id} (第{attempt}次)...')
+                log.info(f'🔄 自动派发 {task_id} → {runtime_id} (第{attempt}次)...')
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=310)
                 if result.returncode == 0:
-                    log.info(f'✅ {task_id} 自动派发成功 → {agent_id}')
+                    log.info(f'✅ {task_id} 自动派发成功 → {runtime_id}')
                     _update_task_scheduler(task_id, lambda t, s: (
                         s.update({
                             'lastDispatchAt': now_iso(),
                             'lastDispatchStatus': 'success',
-                            'lastDispatchAgent': agent_id,
+                            'lastDispatchAgent': runtime_id,
+                            'lastDispatchAgentLogical': agent_id,
                             'lastDispatchTrigger': trigger,
                             'lastDispatchError': '',
                         }),
-                        _scheduler_add_flow(t, f'派发成功：{agent_id}（{trigger}）', to=t.get('org', ''))
+                        _scheduler_add_flow(t, f'派发成功：{runtime_id}（{trigger}）', to=t.get('org', ''))
                     ))
                     return
                 err = result.stderr[:200] if result.stderr else result.stdout[:200]
@@ -1980,28 +2080,30 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                 if attempt < max_retries:
                     import time
                     time.sleep(5)
-            log.error(f'❌ {task_id} 自动派发最终失败 → {agent_id}')
+            log.error(f'❌ {task_id} 自动派发最终失败 → {runtime_id}')
             _update_task_scheduler(task_id, lambda t, s: (
                 s.update({
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'failed',
-                    'lastDispatchAgent': agent_id,
+                    'lastDispatchAgent': runtime_id,
+                    'lastDispatchAgentLogical': agent_id,
                     'lastDispatchTrigger': trigger,
                     'lastDispatchError': err,
                 }),
-                _scheduler_add_flow(t, f'派发失败：{agent_id}（{trigger}）', to=t.get('org', ''))
+                _scheduler_add_flow(t, f'派发失败：{runtime_id}（{trigger}）', to=t.get('org', ''))
             ))
         except subprocess.TimeoutExpired:
-            log.error(f'❌ {task_id} 自动派发超时 → {agent_id}')
+            log.error(f'❌ {task_id} 自动派发超时 → {runtime_id}')
             _update_task_scheduler(task_id, lambda t, s: (
                 s.update({
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'timeout',
-                    'lastDispatchAgent': agent_id,
+                    'lastDispatchAgent': runtime_id,
+                    'lastDispatchAgentLogical': agent_id,
                     'lastDispatchTrigger': trigger,
                     'lastDispatchError': 'timeout',
                 }),
-                _scheduler_add_flow(t, f'派发超时：{agent_id}（{trigger}）', to=t.get('org', ''))
+                _scheduler_add_flow(t, f'派发超时：{runtime_id}（{trigger}）', to=t.get('org', ''))
             ))
         except Exception as e:
             log.warning(f'⚠️ {task_id} 自动派发异常: {e}')
@@ -2009,15 +2111,16 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                 s.update({
                     'lastDispatchAt': now_iso(),
                     'lastDispatchStatus': 'error',
-                    'lastDispatchAgent': agent_id,
+                    'lastDispatchAgent': runtime_id,
+                    'lastDispatchAgentLogical': agent_id,
                     'lastDispatchTrigger': trigger,
                     'lastDispatchError': str(e)[:200],
                 }),
-                _scheduler_add_flow(t, f'派发异常：{agent_id}（{trigger}）', to=t.get('org', ''))
+                _scheduler_add_flow(t, f'派发异常：{runtime_id}（{trigger}）', to=t.get('org', ''))
             ))
 
     threading.Thread(target=_do_dispatch, daemon=True).start()
-    log.info(f'🚀 {task_id} 推进后自动派发 → {agent_id}')
+    log.info(f'🚀 {task_id} 推进后自动派发 → {runtime_id} (逻辑节点: {agent_id})')
 
 
 def handle_advance_state(task_id, comment=''):
@@ -2186,16 +2289,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'invalid agent_id'}, 400)
             else:
                 self.send_json({'ok': True, 'agentId': agent_id, 'activity': get_agent_activity(agent_id)})
-        # ── 朝堂议政 ──
-        elif p == '/api/court-discuss/list':
+        # ── 班级协作讨论 ──
+        elif p == '/api/classroom-discuss/list':
             self.send_json({'ok': True, 'sessions': cd_list()})
-        elif p == '/api/court-discuss/officials':
+        elif p == '/api/classroom-discuss/officials':
             self.send_json({'ok': True, 'officials': CD_PROFILES})
-        elif p.startswith('/api/court-discuss/session/'):
-            sid = p.replace('/api/court-discuss/session/', '')
+        elif p.startswith('/api/classroom-discuss/session/'):
+            sid = p.replace('/api/classroom-discuss/session/', '')
             data = cd_get(sid)
             self.send_json(data if data else {'ok': False, 'error': 'session not found'}, 200 if data else 404)
-        elif p == '/api/court-discuss/fate':
+        elif p == '/api/classroom-discuss/fate':
             self.send_json({'ok': True, 'event': cd_fate()})
         elif self._serve_static(p):
             pass  # 已由 _serve_static 处理 (JS/CSS/图片等)
@@ -2394,7 +2497,7 @@ class Handler(BaseHTTPRequestHandler):
         if p == '/api/create-task':
             title = body.get('title', '').strip()
             org = body.get('org', '学习委员').strip()
-            official = body.get('official', '中书令').strip()
+            official = body.get('official', '班主任').strip()
             priority = body.get('priority', 'normal').strip()
             template_id = body.get('templateId', '')
             params = body.get('params', {})
@@ -2476,8 +2579,8 @@ class Handler(BaseHTTPRequestHandler):
             atomic_json_update(DATA / 'agent_config.json', _set_channel, {})
             self.send_json({'ok': True, 'message': f'派发渠道已切换为 {channel}'})
 
-        # ── 朝堂议政 POST ──
-        elif p == '/api/court-discuss/start':
+        # ── 班级协作讨论 POST ──
+        elif p == '/api/classroom-discuss/start':
             topic = body.get('topic', '').strip()
             officials = body.get('officials', [])
             task_id = body.get('taskId', '').strip()
@@ -2487,15 +2590,15 @@ class Handler(BaseHTTPRequestHandler):
             if not officials or not isinstance(officials, list):
                 self.send_json({'ok': False, 'error': 'officials list required'}, 400)
                 return
-            # 校验官员 ID
+            # 校验班级Agent ID
             valid_ids = set(CD_PROFILES.keys())
             officials = [o for o in officials if o in valid_ids]
             if len(officials) < 2:
-                self.send_json({'ok': False, 'error': '至少选择2位官员'}, 400)
+                self.send_json({'ok': False, 'error': '至少选择2位班级Agent'}, 400)
                 return
             self.send_json(cd_create(topic, officials, task_id))
 
-        elif p == '/api/court-discuss/advance':
+        elif p == '/api/classroom-discuss/advance':
             sid = body.get('sessionId', '').strip()
             user_msg = body.get('userMessage', '').strip() or None
             decree = body.get('decree', '').strip() or None
@@ -2504,14 +2607,14 @@ class Handler(BaseHTTPRequestHandler):
                 return
             self.send_json(cd_advance(sid, user_msg, decree))
 
-        elif p == '/api/court-discuss/conclude':
+        elif p == '/api/classroom-discuss/conclude':
             sid = body.get('sessionId', '').strip()
             if not sid:
                 self.send_json({'ok': False, 'error': 'sessionId required'}, 400)
                 return
             self.send_json(cd_conclude(sid))
 
-        elif p == '/api/court-discuss/destroy':
+        elif p == '/api/classroom-discuss/destroy':
             sid = body.get('sessionId', '').strip()
             if sid:
                 cd_destroy(sid)
@@ -2523,7 +2626,7 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     parser = argparse.ArgumentParser(description='ClassBrainAI看板服务器')
-    parser.add_argument('--port', type=int, default=7892)  # 修改默认端口避免与 edict 冲突
+    parser.add_argument('--port', type=int, default=7891)
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--cors', default=None, help='Allowed CORS origin (default: reflect request Origin header)')
     args = parser.parse_args()

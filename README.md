@@ -73,10 +73,9 @@ ClassBrainAI/
 │   ├── study/                  # 学习委员
 │   ├── technical/              # 技术委员
 │   └── vice_monitor/           # 副班长
-├── config/                      # 配置文件
 ├── dashboard/                   # 实时看板
 │   ├── server.py               # 看板服务器
-│   ├── court_discuss.py        # 议事厅讨论
+│   ├── classroom_discuss.py        # 班级协作讨论
 │   └── dashboard.html          # 看板前端界面
 ├── data/                        # 数据存储
 │   ├── tasks_source.json       # 任务数据源
@@ -86,7 +85,6 @@ ClassBrainAI/
 │   ├── class_board.py          # 班委会核心逻辑
 │   ├── utils.py                # 工具函数
 │   └── file_lock.py            # 文件锁机制
-└── src/                         # 核心模块
 ```
 
 ---
@@ -150,7 +148,7 @@ cd dashboard
 python server.py
 
 # 访问看板
-# 在浏览器中打开: http://localhost:5000
+# 在浏览器中打开: http://127.0.0.1:7891
 ```
 
 ### 使用班委会系统
@@ -164,10 +162,8 @@ python class_board.py
 
 ## 📚 文档
 
-- [架构文档](./docs/architecture.md)
-- [API 文档](./docs/api.md)
-- [部署文档](./docs/deployment.md)
-- [用户指南](./docs/user_guide.md)
+- [系统设计](./docs/superpowers/specs/2026-03-22-classbrainai-design.md)
+- [实施计划](./docs/superpowers/plans/2026-03-22-classbrainai-implementation.md)
 
 ---
 
@@ -199,11 +195,11 @@ python class_board.py
 ## 🎉 致谢
 
 本项目灵感来源于以下优秀的开源项目：
-- **edict** (cft0808/edict) - 基于三省六部制的 Multi-Agent 架构，为 ClassBrainAI 的班级管理架构提供了重要参考
+- **edict** (cft0808/edict) - 基于班级Agent体系制的 Multi-Agent 架构，为 ClassBrainAI 的班级管理架构提供了重要参考
 - **MindOS** (YuanyuanMa03/MindOS) - 知识库管理系统
 - **OpenClaw** (openclaw/openclaw) - Personal AI Assistant
 
-ClassBrainAI 将 edict 的古代三省六部制创新性地转化为现代班级管理架构，让 AI 班委们协同工作，实现智能化的班级管理。
+ClassBrainAI 将 edict 的古代班级Agent体系制创新性地转化为现代班级管理架构，让 AI 班委们协同工作，实现智能化的班级管理。
 
 感谢开源社区的无私奉献！
 

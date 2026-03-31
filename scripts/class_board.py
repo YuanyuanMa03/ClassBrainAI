@@ -11,10 +11,10 @@
 
 用法:
   # 新建任务（收旨时）
-  python3 kanban_update.py create JJC-20260223-012 "任务标题" Zhongshu 学习委员 中书令
+  python3 kanban_update.py create JJC-20260223-012 "任务标题" Study 学习委员 班主任
 
   # 更新状态
-  python3 kanban_update.py state JJC-20260223-012 Menxia "规划方案已提交班委主席"
+  python3 kanban_update.py state JJC-20260223-012 Chair "规划方案已提交班委主席"
 
   # 添加流转记录
   python3 kanban_update.py flow JJC-20260223-012 "学习委员" "班委主席" "规划方案提交审核"
@@ -42,37 +42,105 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 from file_lock import atomic_json_read, atomic_json_update  # noqa: E402
 from utils import now_iso  # noqa: E402
 
+VALID_STATES = {
+    'Pending', 'Monitor', 'Study', 'Chair', 'Assigned',
+    'Doing', 'Review', 'Done', 'Blocked', 'Cancelled',
+}
+
+
+def normalize_state(state):
+    if not isinstance(state, str):
+        return 'Pending'
+    s = state.strip()
+    if not s:
+        return 'Pending'
+    if s in VALID_STATES:
+        return s
+    return 'Pending'
+
+
 STATE_ORG_MAP = {
-    'Taizi': '班长', 'Zhongshu': '学习委员', 'Menxia': '班委主席', 'Assigned': '副班长',
-    'Doing': '执行中', 'Review': '副班长', 'Done': '完成', 'Blocked': '阻塞',
+    'Pending': '班主任',
+    'Monitor': '班长',
+    'Study': '学习委员',
+    'Chair': '班委主席',
+    'Assigned': '副班长',
+    'Doing': '各班委',
+    'Review': '副班长',
+    'Done': '完成',
+    'Blocked': '阻塞',
+    'Cancelled': '取消',
 }
 
 _STATE_AGENT_MAP = {
-    'Taizi': 'taizi',
-    'Zhongshu': 'zhongshu',
-    'Menxia': 'menxia',
-    'Assigned': 'shangshu',
-    'Review': 'shangshu',
-    'Pending': 'zhongshu',
+    'Monitor': 'classbrain-monitor',
+    'Study': 'classbrain-study',
+    'Chair': 'classbrain-chair',
+    'Assigned': 'classbrain-vice',
+    'Review': 'classbrain-vice',
+    'Pending': 'classbrain-monitor',
 }
 
 _ORG_AGENT_MAP = {
-    '礼部': 'libu', '户部': 'hubu', '兵部': 'bingbu',
-    '刑部': 'xingbu', '工部': 'gongbu', '吏部': 'libu_hr',
-    '学习委员': 'zhongshu', '班委主席': 'menxia', '副班长': 'shangshu',
+    '学习委员': 'classbrain-study',
+    '班委主席': 'classbrain-chair',
+    '副班长': 'classbrain-vice',
+    '技术委员': 'classbrain-technical',
+    '后勤委员': 'classbrain-logistics',
+    '生活委员': 'classbrain-finance',
+    '文艺委员': 'classbrain-arts',
+    '纪律委员': 'classbrain-discipline',
+    '组织委员': 'classbrain-organization',
+    '早读委员': 'classbrain-morning',
 }
 
 _AGENT_LABELS = {
-    'main': '班长', 'taizi': '班长',
-    'zhongshu': '学习委员', 'menxia': '班委主席', 'shangshu': '副班长',
-    'libu': '礼部', 'hubu': '户部', 'bingbu': '兵部', 'xingbu': '刑部',
-    'gongbu': '工部', 'libu_hr': '吏部', 'zaochao': '钦天监',
+    'main': '班长',
+    'classbrain-monitor': '班长',
+    'classbrain-study': '学习委员',
+    'classbrain-chair': '班委主席',
+    'classbrain-vice': '副班长',
+    'classbrain-technical': '技术委员',
+    'classbrain-logistics': '后勤委员',
+    'classbrain-finance': '生活委员',
+    'classbrain-arts': '文艺委员',
+    'classbrain-discipline': '纪律委员',
+    'classbrain-organization': '组织委员',
+    'classbrain-morning': '早读委员',
 }
 
 MAX_PROGRESS_LOG = 100  # 单任务最大进展日志条数
 
+
+def _normalize_task_state(task):
+    if not isinstance(task, dict):
+        return False
+    changed = False
+    raw = task.get('state', 'Pending')
+    canon = normalize_state(raw)
+    if raw != canon:
+        task['state'] = canon
+        changed = True
+    prev = task.get('_prev_state')
+    if prev:
+        prev_canon = normalize_state(prev)
+        if prev != prev_canon:
+            task['_prev_state'] = prev_canon
+            changed = True
+    return changed
+
+
 def load():
-    return atomic_json_read(TASKS_FILE, [])
+    tasks = atomic_json_read(TASKS_FILE, [])
+    if not isinstance(tasks, list):
+        return []
+    changed = False
+    for t in tasks:
+        if _normalize_task_state(t):
+            changed = True
+    if changed:
+        atomic_json_update(TASKS_FILE, lambda _: tasks, [])
+    return tasks
 
 def _trigger_refresh():
     """异步触发 live_status 刷新，不阻塞调用方。"""
@@ -95,7 +163,7 @@ _JUNK_TITLES = {
 }
 
 def _sanitize_text(raw, max_len=80):
-    """清洗文本：剥离文件路径、URL、Conversation 元数据、传旨前缀、截断过长内容。"""
+    """清洗文本：剥离文件路径、URL、Conversation 元数据、任务前缀、截断过长内容。"""
     t = (raw or '').strip()
     # 1) 剥离 Conversation info / Conversation 后面的所有内容
     t = re.split(r'\n*Conversation\b', t, maxsplit=1)[0].strip()
@@ -105,8 +173,8 @@ def _sanitize_text(raw, max_len=80):
     t = re.sub(r'[/\\.~][A-Za-z0-9_\-./]+(?:\.(?:py|js|ts|json|md|sh|yaml|yml|txt|csv|html|css|log))?', '', t)
     # 4) 剥离 URL
     t = re.sub(r'https?://\S+', '', t)
-    # 5) 清理常见前缀: "传旨:" "下旨:" "下旨（xxx）:" 等
-    t = re.sub(r'^(传旨|下旨)([（(][^)）]*[)）])?[：:\uff1a]\s*', '', t)
+    # 5) 清理常见前缀: "传达:" "发布任务:" "发布任务（xxx）:" 等
+    t = re.sub(r'^(传达|发布任务|发布任务|传旨)([（(][^)）]*[)）])?[：:\uff1a]\s*', '', t)
     # 6) 剥离系统元数据关键词
     t = re.sub(r'(message_id|session_id|chat_id|open_id|user_id|tenant_key)\s*[:=]\s*\S+', '', t)
     # 7) 合并多余空白
@@ -145,10 +213,10 @@ def _infer_agent_id_from_runtime(task=None):
         return m2.group(1)
 
     if task:
-        state = task.get('state', '')
+        state = normalize_state(task.get('state', ''))
         org = task.get('org', '')
         aid = _STATE_AGENT_MAP.get(state)
-        if aid is None and state in ('Doing', 'Next'):
+        if aid is None and state == 'Doing':
             aid = _ORG_AGENT_MAP.get(org)
         if aid:
             return aid
@@ -156,7 +224,7 @@ def _infer_agent_id_from_runtime(task=None):
 
 
 def _is_valid_task_title(title):
-    """校验标题是否足够作为一个任务任务。"""
+    """校验标题是否足够作为一个有效任务。"""
     t = (title or '').strip()
     if len(t) < _MIN_TITLE_LEN:
         return False, f'标题过短（{len(t)}<{_MIN_TITLE_LEN}字），疑似非任务'
@@ -175,7 +243,8 @@ def _is_valid_task_title(title):
 
 
 def cmd_create(task_id, title, state, org, official, remark=None):
-    """新建任务（收旨时立即调用）"""
+    """新建任务（收到任务时立即调用）"""
+    state = normalize_state(state)
     # 清洗标题（剥离元数据）
     title = _sanitize_title(title)
     # 任务标题校验
@@ -185,20 +254,21 @@ def cmd_create(task_id, title, state, org, official, remark=None):
         print(f'[看板] 拒绝创建：{reason}', flush=True)
         return
     actual_org = STATE_ORG_MAP.get(state, org)
-    clean_remark = _sanitize_remark(remark) if remark else f"下旨：{title}"
+    clean_remark = _sanitize_remark(remark) if remark else f"任务创建：{title}"
     def modifier(tasks):
         existing = next((t for t in tasks if t.get('id') == task_id), None)
         if existing:
-            if existing.get('state') in ('Done', 'Cancelled'):
-                log.warning(f'⚠️ 任务 {task_id} 已完结 (state={existing["state"]})，不可覆盖')
+            existing_state = normalize_state(existing.get('state', ''))
+            if existing_state in ('Done', 'Cancelled'):
+                log.warning(f'⚠️ 任务 {task_id} 已完结 (state={existing_state})，不可覆盖')
                 return tasks
-            if existing.get('state') not in (None, '', 'Inbox', 'Pending'):
-                log.warning(f'任务 {task_id} 已存在 (state={existing["state"]})，将被覆盖')
+            if existing_state not in ('Pending',):
+                log.warning(f'任务 {task_id} 已存在 (state={existing_state})，将被覆盖')
         tasks = [t for t in tasks if t.get('id') != task_id]
         tasks.insert(0, {
             "id": task_id, "title": title, "official": official,
             "org": actual_org, "state": state,
-            "now": clean_remark[:60] if remark else f"已下旨，等待{actual_org}接旨",
+            "now": clean_remark[:60] if remark else f"任务已创建，等待{actual_org}处理",
             "eta": "-", "block": "无", "output": "", "ac": "",
             "flow_log": [{"at": now_iso(), "from": "班主任", "to": actual_org, "remark": clean_remark}],
             "updatedAt": now_iso()
@@ -245,6 +315,7 @@ _VALID_TRANSITIONS = {
 
 def cmd_state(task_id, new_state, now_text=None):
     """更新任务状态（原子操作，含流转合法性校验）"""
+    new_state = normalize_state(new_state)
     old_state = [None]
     rejected = [False]
     def modifier(tasks):
@@ -252,7 +323,8 @@ def cmd_state(task_id, new_state, now_text=None):
         if not t:
             log.error(f'任务 {task_id} 不存在')
             return tasks
-        old_state[0] = t['state']
+        old_state[0] = normalize_state(t.get('state', 'Pending'))
+        t['state'] = old_state[0]
         allowed = _VALID_TRANSITIONS.get(old_state[0])
         if allowed is not None and new_state not in allowed:
             log.warning(f'⚠️ 非法状态转换 {task_id}: {old_state[0]} → {new_state}（允许: {allowed}）')

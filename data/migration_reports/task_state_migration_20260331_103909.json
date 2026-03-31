@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "mode": "apply",
+  "file": "/Users/mayuanyuan/git/ClassBrainAI/data/tasks_source.json",
+  "totalTasks": 0,
+  "changedTasks": 0,
+  "stateBefore": {},
+  "stateAfter": {},
+  "changeKinds": {},
+  "changedSamples": [],
+  "generatedAt": "2026-03-31T02:39:09.534730Z"
+}

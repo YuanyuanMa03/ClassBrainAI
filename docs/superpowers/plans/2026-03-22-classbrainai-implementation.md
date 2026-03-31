@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 edict 三省六部制多 Agent 系统改造为班级主题的 ClassBrainAI
+**Goal:** 将 edict 班级Agent体系制多 Agent 系统改造为班级主题的 ClassBrainAI
 
 **Architecture:** 保留 edict 的完整工作流（分拣→规划→审议→派发→执行），替换所有术语为班级主题，更新 UI 为校园风格
 
@@ -113,19 +113,19 @@ cp /Users/mayuanyuan/ai-workspace/edict/agents/taizi/SOUL.md /Users/mayuanyuan/a
 ```bash
 # 编辑文件，替换以下内容：
 # JJC-YYYYMMDD-NNN → CB-YYYYMMDD-NNN
-# 中书省 → 学习委员
+# 学习委员组 → 学习委员
 # Zhongshu → Study
 # 中书令 → 学习委员
-# 皇上 → 班主任
-# 旨意 → 任务
-# 尚书省 → 副班长
+# 班主任 → 班主任
+# 任务 → 任务
+# 副班长组 → 副班长
 # 回奏 → 汇报
 ```
 
 - [ ] **Step 4: 验证替换是否完整**
 
 ```bash
-grep -n "皇上\|旨意\|中书省\|太子" /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/monitor/SOUL.md
+grep -n "班主任\|任务\|学习委员组\|太子" /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/monitor/SOUL.md
 ```
 
 Expected: 应该只返回 "grep:" 未找到匹配（说明已全部替换）
@@ -144,7 +144,7 @@ git commit -m "feat: add Monitor (班长) agent SOUL.md"
 **Files:**
 - Create: `agents/study/SOUL.md`
 
-- [ ] **Step 1: 从 edict 复制中书省 SOUL.md**
+- [ ] **Step 1: 从 edict 复制学习委员组 SOUL.md**
 
 ```bash
 cp /Users/mayuanyuan/ai-workspace/edict/agents/zhongshu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/study/SOUL.md
@@ -156,17 +156,17 @@ cp /Users/mayuanyuan/ai-workspace/edict/agents/zhongshu/SOUL.md /Users/mayuanyua
 cd /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/study
 
 # 使用 sed 进行批量替换
-sed -i '' 's/中书省/学习委员/g' SOUL.md
-sed -i '' 's/门下省/班委主席/g' SOUL.md
-sed -i '' 's/尚书省/副班长/g' SOUL.md
-sed -i '' 's/皇上/班主任/g' SOUL.md
+sed -i '' 's/学习委员组/学习委员/g' SOUL.md
+sed -i '' 's/班委主席组/班委主席/g' SOUL.md
+sed -i '' 's/副班长组/副班长/g' SOUL.md
+sed -i '' 's/班主任/班主任/g' SOUL.md
 sed -i '' 's/太子/班长/g' SOUL.md
-sed -i '' 's/旨意/任务/g' SOUL.md
+sed -i '' 's/任务/任务/g' SOUL.md
 sed -i '' 's/JJC-/CB-/g' SOUL.md
 sed -i '' 's/六部/各班委/g' SOUL.md
 sed -i '' 's/回奏/汇报/g' SOUL.md
-sed -i '' 's/准奏/批准/g' SOUL.md
-sed -i '' 's/封驳/驳回/g' SOUL.md
+sed -i '' 's/批准/批准/g' SOUL.md
+sed -i '' 's/驳回/驳回/g' SOUL.md
 ```
 
 - [ ] **Step 3: 验证替换**
@@ -175,7 +175,7 @@ sed -i '' 's/封驳/驳回/g' SOUL.md
 cat SOUL.md | head -20
 ```
 
-Expected: 文件头部应显示"学习委员"而非"中书省"
+Expected: 文件头部应显示"学习委员"而非"学习委员组"
 
 - [ ] **Step 4: 提交**
 
@@ -191,7 +191,7 @@ git commit -m "feat: add Study (学习委员) agent SOUL.md"
 **Files:**
 - Create: `agents/chair/SOUL.md`
 
-- [ ] **Step 1: 从 edict 复制门下省 SOUL.md**
+- [ ] **Step 1: 从 edict 复制班委主席组 SOUL.md**
 
 ```bash
 cp /Users/mayuanyuan/ai-workspace/edict/agents/menxia/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/chair/SOUL.md
@@ -202,15 +202,15 @@ cp /Users/mayuanyuan/ai-workspace/edict/agents/menxia/SOUL.md /Users/mayuanyuan/
 ```bash
 cd /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/chair
 
-sed -i '' 's/门下省/班委主席/g' SOUL.md
-sed -i '' 's/中书省/学习委员/g' SOUL.md
-sed -i '' 's/尚书省/副班长/g' SOUL.md
-sed -i '' 's/皇上/班主任/g' SOUL.md
+sed -i '' 's/班委主席组/班委主席/g' SOUL.md
+sed -i '' 's/学习委员组/学习委员/g' SOUL.md
+sed -i '' 's/副班长组/副班长/g' SOUL.md
+sed -i '' 's/班主任/班主任/g' SOUL.md
 sed -i '' 's/太子/班长/g' SOUL.md
 sed -i '' 's/六部/各班委/g' SOUL.md
-sed -i '' 's/旨意/任务/g' SOUL.md
-sed -i '' 's/封驳/驳回/g' SOUL.md
-sed -i '' 's/准奏/批准/g' SOUL.md
+sed -i '' 's/任务/任务/g' SOUL.md
+sed -i '' 's/驳回/驳回/g' SOUL.md
+sed -i '' 's/批准/批准/g' SOUL.md
 sed -i '' 's/JJC-/CB-/g' SOUL.md
 ```
 
@@ -220,7 +220,7 @@ sed -i '' 's/JJC-/CB-/g' SOUL.md
 head -10 SOUL.md
 ```
 
-Expected: 应显示"班委主席"而非"门下省"
+Expected: 应显示"班委主席"而非"班委主席组"
 
 - [ ] **Step 4: 提交**
 
@@ -236,7 +236,7 @@ git commit -m "feat: add Chair (班委主席) agent SOUL.md"
 **Files:**
 - Create: `agents/vice_monitor/SOUL.md`
 
-- [ ] **Step 1: 从 edict 复制尚书省 SOUL.md**
+- [ ] **Step 1: 从 edict 复制副班长组 SOUL.md**
 
 ```bash
 cp /Users/mayuanyuan/ai-workspace/edict/agents/shangshu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/vice_monitor/SOUL.md
@@ -247,12 +247,12 @@ cp /Users/mayuanyuan/ai-workspace/edict/agents/shangshu/SOUL.md /Users/mayuanyua
 ```bash
 cd /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/vice_monitor
 
-sed -i '' 's/尚书省/副班长/g' SOUL.md
-sed -i '' 's/门下省/班委主席/g' SOUL.md
-sed -i '' 's/中书省/学习委员/g' SOUL.md
-sed -i '' 's/皇上/班主任/g' SOUL.md
+sed -i '' 's/副班长组/副班长/g' SOUL.md
+sed -i '' 's/班委主席组/班委主席/g' SOUL.md
+sed -i '' 's/学习委员组/学习委员/g' SOUL.md
+sed -i '' 's/班主任/班主任/g' SOUL.md
 sed -i '' 's/六部/各班委/g' SOUL.md
-sed -i '' 's/旨意/任务/g' SOUL.md
+sed -i '' 's/任务/任务/g' SOUL.md
 sed -i '' 's/部/委员/g' SOUL.md
 sed -i '' 's/JJC-/CB-/g' SOUL.md
 ```
@@ -263,7 +263,7 @@ sed -i '' 's/JJC-/CB-/g' SOUL.md
 head -10 SOUL.md
 ```
 
-Expected: 应显示"副班长"而非"尚书省"
+Expected: 应显示"副班长"而非"副班长组"
 
 - [ ] **Step 4: 提交**
 
@@ -287,19 +287,19 @@ git commit -m "feat: add Vice Monitor (副班长) agent SOUL.md"
 - [ ] **Step 1: 复制并创建各班委 SOUL.md**
 
 ```bash
-# 技术委员（兵部）
+# 技术委员（技术委员组）
 cp /Users/mayuanyuan/ai-workspace/edict/agents/bingbu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/technical/SOUL.md
 
-# 后勤委员（工部）
+# 后勤委员（后勤委员组）
 cp /Users/mayuanyuan/ai-workspace/edict/agents/gongbu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/logistics/SOUL.md
 
-# 财务委员（户部）
+# 财务委员（生活委员组）
 cp /Users/mayuanyuan/ai-workspace/edict/agents/hubu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/finance/SOUL.md
 
-# 文艺委员（礼部）
+# 文艺委员（文艺委员组）
 cp /Users/mayuanyuan/ai-workspace/edict/agents/libu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/arts/SOUL.md
 
-# 纪律委员（刑部）
+# 纪律委员（纪律委员组）
 cp /Users/mayuanyuan/ai-workspace/edict/agents/xingbu/SOUL.md /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/discipline/SOUL.md
 
 # 组织委员（吏部）
@@ -314,20 +314,20 @@ cp /Users/mayuanyuan/ai-workspace/edict/agents/libu_hr/SOUL.md /Users/mayuanyuan
 cd /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents
 
 for dir in technical logistics finance arts discipline organization; do
-  sed -i '' 's/皇上/班主任/g' $dir/SOUL.md
-  sed -i '' 's/尚书省/副班长/g' $dir/SOUL.md
+  sed -i '' 's/班主任/班主任/g' $dir/SOUL.md
+  sed -i '' 's/副班长组/副班长/g' $dir/SOUL.md
   sed -i '' 's/六部/各班委/g' $dir/SOUL.md
-  sed -i '' 's/旨意/任务/g' $dir/SOUL.md
+  sed -i '' 's/任务/任务/g' $dir/SOUL.md
   sed -i '' 's/回奏/汇报/g' $dir/SOUL.md
   sed -i '' 's/JJC-/CB-/g' $dir/SOUL.md
 done
 
 # 部门名称特殊处理
-sed -i '' 's/兵部/技术委员/g' technical/SOUL.md
-sed -i '' 's/工部/后勤委员/g' logistics/SOUL.md
-sed -i '' 's/户部/财务委员/g' finance/SOUL.md
-sed -i '' 's/礼部/文艺委员/g' arts/SOUL.md
-sed -i '' 's/刑部/纪律委员/g' discipline/SOUL.md
+sed -i '' 's/技术委员组/技术委员/g' technical/SOUL.md
+sed -i '' 's/后勤委员组/后勤委员/g' logistics/SOUL.md
+sed -i '' 's/生活委员组/财务委员/g' finance/SOUL.md
+sed -i '' 's/文艺委员组/文艺委员/g' arts/SOUL.md
+sed -i '' 's/纪律委员组/纪律委员/g' discipline/SOUL.md
 sed -i '' 's/吏部/组织委员/g' organization/SOUL.md
 ```
 
@@ -384,9 +384,9 @@ cd /Users/mayuanyuan/ai-workspace/ClassBrainAI/agents/morning_reading
 
 sed -i '' 's/早朝/早读/g' SOUL.md
 sed -i '' 's/钦天监/学习委员/g' SOUL.md
-sed -i '' 's/皇上/班主任/g' SOUL.md
+sed -i '' 's/班主任/班主任/g' SOUL.md
 sed -i '' 's/御览/查阅/g' SOUL.md
-sed -i '' 's/旨意/任务/g' SOUL.md
+sed -i '' 's/任务/任务/g' SOUL.md
 ```
 
 - [ ] **Step 4: 验证**
@@ -527,16 +527,16 @@ with open('class_board.py', 'r') as f:
 
 # 替换输出消息中的术语
 replacements = [
-    ('三省六部', 'ClassBrainAI'),
-    ('皇上', '班主任'),
+    ('班级Agent体系', 'ClassBrainAI'),
+    ('班主任', '班主任'),
     ('太子', '班长'),
-    ('中书省', '学习委员'),
-    ('门下省', '班委主席'),
-    ('尚书省', '副班长'),
-    ('旨意', '任务'),
+    ('学习委员组', '学习委员'),
+    ('班委主席组', '班委主席'),
+    ('副班长组', '副班长'),
+    ('任务', '任务'),
     ('回奏', '汇报'),
-    ('封驳', '驳回'),
-    ('准奏', '批准'),
+    ('驳回', '驳回'),
+    ('批准', '批准'),
     ('六部', '各班委'),
 ]
 
@@ -556,7 +556,7 @@ rm replace_terms.py
 - [ ] **Step 2: 验证替换**
 
 ```bash
-grep -n "皇上\|旨意\|三省六部" class_board.py
+grep -n "班主任\|任务\|班级Agent体系" class_board.py
 ```
 
 Expected: 应该返回空（说明已全部替换）
@@ -707,10 +707,10 @@ mkdir -p /Users/mayuanyuan/ai-workspace/ClassBrainAI/dashboard
 cp /Users/mayuanyuan/ai-workspace/edict/dashboard/server.py /Users/mayuanyuan/ai-workspace/ClassBrainAI/dashboard/server.py
 ```
 
-- [ ] **Step 3: 复制 court_discuss.py（依赖文件）**
+- [ ] **Step 3: 复制 classroom_discuss.py（依赖文件）**
 
 ```bash
-cp /Users/mayuanyuan/ai-workspace/edict/dashboard/court_discuss.py /Users/mayuanyuan/ai-workspace/ClassBrainAI/dashboard/court_discuss.py
+cp /Users/mayuanyuan/ai-workspace/edict/dashboard/classroom_discuss.py /Users/mayuanyuan/ai-workspace/ClassBrainAI/dashboard/classroom_discuss.py
 ```
 
 - [ ] **Step 4: 验证文件**
@@ -719,7 +719,7 @@ cp /Users/mayuanyuan/ai-workspace/edict/dashboard/court_discuss.py /Users/mayuan
 ls -la /Users/mayuanyuan/ai-workspace/ClassBrainAI/dashboard/
 ```
 
-Expected: 看到 server.py 和 court_discuss.py
+Expected: 看到 server.py 和 classroom_discuss.py
 
 - [ ] **Step 5: 提交**
 
@@ -759,7 +759,7 @@ DEFAULT_PORT = 7892  # 避免与 edict 冲突
 ```bash
 cd /Users/mayuanyuan/ai-workspace/ClassBrainAI
 python3 -m py_compile dashboard/server.py
-python3 -m py_compile dashboard/court_discuss.py
+python3 -m py_compile dashboard/classroom_discuss.py
 ```
 
 Expected: 无语法错误
@@ -784,19 +784,19 @@ git commit -m "feat: update server.py data paths"
 cd /Users/mayuanyuan/ai-workspace/ClassBrainAI/dashboard
 
 # 使用 sed 进行替换
-sed -i '' 's/三省六部/ClassBrainAI/g' server.py
-sed -i '' 's/皇上/班主任/g' server.py
+sed -i '' 's/班级Agent体系/ClassBrainAI/g' server.py
+sed -i '' 's/班主任/班主任/g' server.py
 sed -i '' 's/太子/班长/g' server.py
-sed -i '' 's/中书省/学习委员/g' server.py
-sed -i '' 's/门下省/班委主席/g' server.py
-sed -i '' 's/尚书省/副班长/g' server.py
+sed -i '' 's/学习委员组/学习委员/g' server.py
+sed -i '' 's/班委主席组/班委主席/g' server.py
+sed -i '' 's/副班长组/副班长/g' server.py
 sed -i '' 's/六部/各班委/g' server.py
 ```
 
 - [ ] **Step 2: 验证替换**
 
 ```bash
-grep -n "皇上\|三省六部" server.py court_discuss.py
+grep -n "班主任\|班级Agent体系" server.py classroom_discuss.py
 ```
 
 Expected: 应该返回空或很少的结果（某些注释可能保留）
@@ -813,7 +813,7 @@ Expected: 无语法错误
 - [ ] **Step 4: 提交**
 
 ```bash
-git add dashboard/server.py dashboard/court_discuss.py
+git add dashboard/server.py dashboard/classroom_discuss.py
 git commit -m "feat: replace terminology in server.py"
 ```
 
@@ -1005,18 +1005,18 @@ with open('dashboard.html', 'r') as f:
     content = f.read()
 
 replacements = [
-    ('三省六部', 'ClassBrainAI'),
-    ('皇上', '班主任'),
+    ('班级Agent体系', 'ClassBrainAI'),
+    ('班主任', '班主任'),
     ('太子', '班长'),
-    ('中书省', '学习委员'),
-    ('门下省', '班委主席'),
-    ('尚书省', '副班长'),
+    ('学习委员组', '学习委员'),
+    ('班委主席组', '班委主席'),
+    ('副班长组', '副班长'),
     ('六部', '各班委'),
-    ('旨意', '任务'),
+    ('任务', '任务'),
     ('回奏', '汇报'),
-    ('封驳', '驳回'),
-    ('准奏', '批准'),
-    ('官员', '班委'),
+    ('驳回', '驳回'),
+    ('批准', '批准'),
+    ('班级Agent', '班委'),
     ('衙门', '班级'),
     ('早朝', '早读'),
     ('钦天监', '学习组'),
@@ -1046,7 +1046,7 @@ Expected: 应显示多处替换
 - [ ] **Step 3: 检查遗漏**
 
 ```bash
-grep -n "皇上\|旨意\|三省六部" dashboard.html
+grep -n "班主任\|任务\|班级Agent体系" dashboard.html
 ```
 
 Expected: 应该返回空或只有注释中的内容
@@ -1286,7 +1286,7 @@ Expected: 无语法错误
 
 ```bash
 # 确保没有遗留的 edict 术语
-grep -r "皇上\|旨意\|三省六部" --include="*.py" --include="*.html" --include="*.md" . | grep -v ".git" | grep -v "README.md"
+grep -r "班主任\|任务\|班级Agent体系" --include="*.py" --include="*.html" --include="*.md" . | grep -v ".git" | grep -v "README.md"
 ```
 
 Expected: 应该返回空或只有设计文档中的引用
